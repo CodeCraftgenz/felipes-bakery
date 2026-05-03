@@ -31,9 +31,8 @@ export const metadata: Metadata = {
     'Pães artesanais com fermentação natural, ciabattas, focaccias e folhados feitos com ingredientes selecionados. Peça até quarta-feira, receba na sexta-feira.',
 }
 
-// ── Revalidação ISR ───────────────────────────────────────────
-// Revalida a cada 1 hora — cardápio não muda com frequência
-export const revalidate = 3600
+// Renderiza no servidor a cada requisição (banco não disponível no build)
+export const dynamic = 'force-dynamic'
 
 // ── Página ────────────────────────────────────────────────────
 export default async function PaginaHome() {
