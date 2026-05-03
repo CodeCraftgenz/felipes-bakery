@@ -33,30 +33,48 @@ declare global {
 
 /**
  * Cria o pool de conexões MySQL.
- * Lança erro explícito se DATABASE_URL não estiver configurada.
+ * Aceita DATABASE_URL (string completa) ou variáveis individuais
+ * DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME.
  *
- * Importante: a checagem é feita aqui (em runtime, no primeiro uso) e não
- * em nível de módulo. Isso permite que o servidor Next.js inicie mesmo sem
- * o banco configurado — o erro só aparece quando alguma rota tenta usar `db`.
+ * A checagem é feita em runtime (no primeiro uso), não no nível de módulo,
+ * para que o servidor inicie mesmo sem banco configurado.
  */
 function criarPool(): mysql.Pool {
-  const url = process.env.DATABASE_URL
+  const url  = process.env.DATABASE_URL
+  const host = process.env.DB_HOST
+  const user = process.env.DB_USER
+  const pass = process.env.DB_PASSWORD
+  const name = process.env.DB_NAME
 
-  if (!url) {
-    throw new Error(
-      '[Banco] DATABASE_URL não está definida.\n' +
-      'Configure a variável no arquivo .env.local'
-    )
+  const opcoes: mysql.PoolOptions = {
+    waitForConnections: true,
+    connectionLimit:    10,
+    queueLimit:         0,
+    charset:            'utf8mb4',
+    timezone:           'Z',
   }
 
-  return mysql.createPool({
-    uri:                url,
-    waitForConnections: true,
-    connectionLimit:    10,     // máximo de conexões simultâneas
-    queueLimit:         0,      // sem limite de fila
-    charset:            'utf8mb4',
-    timezone:           'Z',    // todas as datas armazenadas em UTC
-  })
+  if (url) {
+    // Preferência: URL completa
+    return mysql.createPool({ ...opcoes, uri: url })
+  }
+
+  if (host && user && pass && name) {
+    // Alternativa: variáveis individuais
+    return mysql.createPool({
+      ...opcoes,
+      host,
+      port:     Number(process.env.DB_PORT ?? 3306),
+      user,
+      password: pass,
+      database: name,
+    })
+  }
+
+  throw new Error(
+    '[Banco] Configuração do banco ausente.\n' +
+    'Defina DATABASE_URL  OU  DB_HOST + DB_USER + DB_PASSWORD + DB_NAME'
+  )
 }
 
 /**
