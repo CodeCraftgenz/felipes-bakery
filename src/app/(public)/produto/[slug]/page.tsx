@@ -28,8 +28,8 @@ import { Cracha }                    from '@frontend/compartilhado/ui/cracha'
 import { Separador }                 from '@frontend/compartilhado/ui/separador'
 import { formatarMoeda }             from '@compartilhado/utils'
 
-// ── ISR ───────────────────────────────────────────────────────
-export const revalidate = 3600
+// Sempre busca dados frescos — preço e estoque mudam
+export const dynamic = 'force-dynamic'
 
 // ── Parâmetros estáticos ──────────────────────────────────────
 // Gera uma página estática para cada produto no build.

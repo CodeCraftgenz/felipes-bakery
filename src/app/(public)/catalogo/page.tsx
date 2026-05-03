@@ -18,8 +18,8 @@ import { GradeProdutos }        from '@frontend/publico/catalogo/GradeProdutos'
 import { FiltrosCatalogo }      from '@frontend/publico/catalogo/FiltrosCatalogo'
 import { Esqueleto }            from '@frontend/compartilhado/ui/esqueleto'
 
-// ── Revalidação ISR ───────────────────────────────────────────
-export const revalidate = 3600
+// Sempre busca dados frescos — produtos e estoque mudam frequentemente
+export const dynamic = 'force-dynamic'
 
 // ── Metadata dinâmica por categoria ──────────────────────────
 export async function generateMetadata({
