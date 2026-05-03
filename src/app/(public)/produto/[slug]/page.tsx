@@ -52,7 +52,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug }  = await params
-  const produto   = await buscarProdutoPorSlug(slug)
+  const produto   = await buscarProdutoPorSlug(slug).catch(() => null)
 
   if (!produto) return { title: 'Produto não encontrado' }
 
@@ -79,7 +79,7 @@ interface PropsPaginaProduto {
 // ── Página ────────────────────────────────────────────────────
 export default async function PaginaProduto({ params }: PropsPaginaProduto) {
   const { slug }   = await params
-  const produto    = await buscarProdutoPorSlug(slug)
+  const produto    = await buscarProdutoPorSlug(slug).catch(() => null)
 
   // Produto não encontrado ou não publicado → 404
   if (!produto) notFound()
@@ -87,7 +87,7 @@ export default async function PaginaProduto({ params }: PropsPaginaProduto) {
   const categoria = produto.categoria ?? CATEGORIA_FALLBACK
 
   // Busca produtos relacionados em paralelo
-  const relacionados = await buscarProdutosRelacionados(produto.categoriaId, slug, 3)
+  const relacionados = await buscarProdutosRelacionados(produto.categoriaId, slug, 3).catch(() => [])
 
   const semEstoque = produto.estoqueQtd !== null && produto.estoqueQtd <= 0
 

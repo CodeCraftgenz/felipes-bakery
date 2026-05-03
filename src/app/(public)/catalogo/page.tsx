@@ -74,10 +74,10 @@ export default async function PaginaCatalogo({ searchParams }: PropsPaginaCatalo
   const categoria = params.categoria
   const busca     = params.busca
 
-  // Busca dados em paralelo
+  // Busca dados em paralelo — .catch garante que tabelas ausentes não derrubam a página
   const [produtos, categorias] = await Promise.all([
-    buscarProdutos(categoria, busca),
-    buscarCategorias(),
+    buscarProdutos(categoria, busca).catch(() => []),
+    buscarCategorias().catch(() => []),
   ])
 
   const temFiltros = !!(categoria || busca)
