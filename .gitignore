@@ -1,0 +1,73 @@
+# ─── Dependências ─────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build ────────────────────────────────────────────────
+.next/
+out/
+dist/
+build/
+
+# ─── Variáveis de Ambiente — NUNCA commitadas ─────────────
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env.test
+# Exceção: .env.example SIM
+!.env.example
+
+# ─── Logs ─────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ─── Cache ────────────────────────────────────────────────
+.cache/
+.turbo/
+.eslintcache
+*.tsbuildinfo
+next-env.d.ts
+
+# ─── Sistema operacional ──────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ─── Editor ───────────────────────────────────────────────
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Cobertura de testes ──────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ─── Docker ───────────────────────────────────────────────
+# Não ignorar os docker-compose.yml — são configurações do projeto
+
+# ─── Uploads locais (dev) ─────────────────────────────────
+public/uploads/
+uploads/
+
+# ─── Sentry ───────────────────────────────────────────────
+.sentryclirc
+
+# ─── Misc ─────────────────────────────────────────────────
+*.pem
+.vercel
+*.local

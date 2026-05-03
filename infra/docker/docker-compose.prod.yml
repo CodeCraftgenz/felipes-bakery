@@ -1,0 +1,113 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  Docker Compose — Produção (VPS)                             ║
+# ║  Felipe's Bakery                                             ║
+# ╚══════════════════════════════════════════════════════════════╝
+#
+# Stack de produção: MySQL 8 + Redis + Next.js (standalone).
+# As portas do banco e Redis NÃO são expostas externamente —
+# comunicação acontece pela rede interna Docker (felipes_network).
+#
+# Deploy via GitHub Actions → SSH → docker compose -f ... up -d
+#
+# IMPORTANTE: As variáveis de ambiente sensíveis vêm de um arquivo
+# .env.prod que NUNCA deve ser commitado no repositório.
+
+version: '3.9'
+
+services:
+
+  # ── Aplicação Next.js ─────────────────────────────────────────
+  app:
+    image: felipes-bakery:latest              # Build gerado pelo CI/CD
+    container_name: felipes_bakery_app
+    restart: unless-stopped
+    env_file: .env.prod                       # Variáveis de produção (fora do repo)
+    environment:
+      NODE_ENV: production
+    ports:
+      - '3000:3000'                           # Nginx faz proxy para esta porta
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/public/uploads      # Imagens enviadas por usuários
+    networks:
+      - felipes_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M                        # Evita consumo excessivo de RAM
+        reservations:
+          memory: 256M
+
+  # ── Banco de Dados MySQL 8.0 ──────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: felipes_bakery_mysql_prod
+    restart: unless-stopped
+    env_file: .env.prod                       # MYSQL_ROOT_PASSWORD, MYSQL_PASSWORD etc.
+    volumes:
+      - mysql_prod_data:/var/lib/mysql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+      --innodb-buffer-pool-size=512M
+      --max-connections=150
+      --slow-query-log=1
+      --slow-query-log-file=/var/log/mysql/slow.log
+      --long-query-time=2
+    # IMPORTANTE: Nenhuma porta exposta para o host! Acesso somente pela rede interna.
+    networks:
+      - felipes_network
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p${MYSQL_ROOT_PASSWORD}']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # ── Cache Redis 7.2 ───────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: felipes_bakery_redis_prod
+    restart: unless-stopped
+    volumes:
+      - redis_prod_data:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    # IMPORTANTE: Nenhuma porta exposta para o host!
+    networks:
+      - felipes_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+# ── Rede Interna ──────────────────────────────────────────────
+# Isolamento: containers se comunicam entre si, mas não com o host
+networks:
+  felipes_network:
+    driver: bridge
+    name: felipes_bakery_network
+
+# ── Volumes de Produção ───────────────────────────────────────
+# Dados persistidos em produção — fazer backup periodicamente!
+volumes:
+  mysql_prod_data:
+    driver: local
+  redis_prod_data:
+    driver: local
+  uploads_data:
+    driver: local

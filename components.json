@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "src/app/globals.css",
+    "baseColor": "stone",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@frontend/compartilhado/ui",
+    "utils": "@compartilhado/utils",
+    "ui": "@frontend/compartilhado/ui",
+    "lib": "@compartilhado/utils",
+    "hooks": "@frontend/compartilhado/hooks"
+  }
+}

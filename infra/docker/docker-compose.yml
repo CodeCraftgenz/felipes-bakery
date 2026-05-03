@@ -1,0 +1,68 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  Docker Compose — Desenvolvimento Local                      ║
+# ║  Felipe's Bakery                                             ║
+# ╚══════════════════════════════════════════════════════════════╝
+#
+# Sobe MySQL 8 e Redis para desenvolvimento local.
+# O Next.js roda fora do Docker (npm run dev) para ter hot-reload rápido.
+#
+# Uso:
+#   docker compose up -d          → sobe os serviços em background
+#   docker compose down           → para e remove os containers
+#   docker compose down -v        → para, remove containers E volumes (apaga dados)
+#   docker compose logs -f mysql  → acompanha logs do MySQL em tempo real
+
+version: '3.9'
+
+services:
+
+  # ── Banco de Dados MySQL 8.0 ──────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: felipes_bakery_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_senha_dev     # Apenas em desenvolvimento!
+      MYSQL_DATABASE:      felipes_bakery_dev
+      MYSQL_USER:          felipes_user
+      MYSQL_PASSWORD:      felipes_senha_dev
+    ports:
+      - '3306:3306'                           # Expõe para conexão local (DBeaver, etc.)
+    volumes:
+      - mysql_data:/var/lib/mysql             # Persiste dados entre restarts
+      - ./init:/docker-entrypoint-initdb.d    # Scripts SQL executados na criação
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+      --innodb-buffer-pool-size=256M
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-proot_senha_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Cache Redis 7.2 ───────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: felipes_bakery_redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'                           # Expõe para conexão local
+    volumes:
+      - redis_data:/data                      # Persiste dados (sessões, cache, filas)
+    command: redis-server --appendonly yes    # Persistência AOF habilitada
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+# ── Volumes Nomeados ──────────────────────────────────────────
+# Dados persistidos mesmo após `docker compose down`
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local

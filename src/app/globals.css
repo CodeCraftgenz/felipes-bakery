@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Variables — Design System da Felipe's Bakery ──── */
+:root {
+  /* Cores semânticas para shadcn/ui */
+  --background:   35 100% 97%;    /* cream-100 #FAF6EF */
+  --foreground:   20 43% 17%;     /* brand-950 #2C1A0E */
+
+  --card:         0 0% 100%;
+  --card-foreground: 20 43% 17%;
+
+  --popover:      0 0% 100%;
+  --popover-foreground: 20 43% 17%;
+
+  --primary:      33 57% 51%;     /* brand-500 #C8933C */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary:    35 30% 90%;
+  --secondary-foreground: 25 68% 31%;
+
+  --muted:        35 20% 93%;
+  --muted-foreground: 20 20% 45%;
+
+  --accent:       35 30% 90%;
+  --accent-foreground: 25 68% 31%;
+
+  --destructive:  15 72% 46%;     /* terracotta-500 */
+  --destructive-foreground: 0 0% 100%;
+
+  --border:       30 30% 84%;     /* cream-300 #E8DDD0 */
+  --input:        30 30% 84%;
+  --ring:         33 57% 51%;
+
+  --radius:       0.5rem;
+}
+
+/* ─── Modo Escuro (Admin) ──────────────────────────────── */
+.dark {
+  --background:   20 20% 10%;
+  --foreground:   35 100% 95%;
+
+  --card:         20 15% 14%;
+  --card-foreground: 35 100% 95%;
+
+  --popover:      20 15% 14%;
+  --popover-foreground: 35 100% 95%;
+
+  --primary:      33 57% 51%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary:    20 15% 18%;
+  --secondary-foreground: 35 70% 80%;
+
+  --muted:        20 10% 18%;
+  --muted-foreground: 35 20% 60%;
+
+  --accent:       20 15% 18%;
+  --accent-foreground: 35 70% 80%;
+
+  --destructive:  15 72% 46%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border:       20 10% 22%;
+  --input:        20 10% 22%;
+  --ring:         33 57% 51%;
+}
+
+/* ─── Base Styles ────────────────────────────────────────── */
+* {
+  border-color: hsl(var(--border));
+  box-sizing: border-box;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color:            hsl(var(--foreground));
+}
+
+/* ─── Scrollbar customizada ──────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* ─── Focus visible acessível ────────────────────────────── */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* ─── Seleção de texto ───────────────────────────────────── */
+::selection {
+  background-color: hsl(33 57% 51% / 0.2);
+  color: hsl(var(--foreground));
+}
+
+/* ─── Tipografia — Headings em Playfair Display ──────────── */
+h1, h2, h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+h4, h5, h6 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 600;
+}
+
+/* ─── Animações globais ──────────────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out both;
+}
+
+/* ─── Print styles ───────────────────────────────────────── */
+@media print {
+  .no-print { display: none !important; }
+}

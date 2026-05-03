@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "forceConsistentCasingInFileNames": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      /* Atalhos principais */
+      "@/*":              ["./src/*"],
+
+      /* Backend — nunca importado por Client Components */
+      "@backend/*":       ["./src/backend/*"],
+
+      /* Frontend — componentes React */
+      "@frontend/*":      ["./src/frontend/*"],
+
+      /* Compartilhado — usado por ambos os lados */
+      "@compartilhado/*": ["./src/compartilhado/*"],
+
+      /* Banco de dados — schemas e conexão */
+      "@banco/*":         ["./banco/*"],
+      "@schema":          ["./banco/schema/index.ts"],
+
+      /* Variáveis de ambiente tipadas */
+      "@env":             ["./src/compartilhado/env.ts"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

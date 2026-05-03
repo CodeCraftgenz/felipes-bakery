@@ -1,0 +1,74 @@
+version: '3.9'
+
+# Docker Compose para DESENVOLVIMENTO LOCAL
+# Sobe MySQL 8.0 + Redis para desenvolvimento
+# Uso: docker compose up -d
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: felipesbakery_mysql_dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_dev_password
+      MYSQL_DATABASE: felipesbakery_dev
+      MYSQL_USER: bakery_user
+      MYSQL_PASSWORD: bakery_dev_password
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=256M
+      --slow-query-log=1
+      --slow-query-log-file=/var/lib/mysql/slow.log
+      --long-query-time=1
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'bakery_user', '-pbakery_dev_password']
+      timeout: 5s
+      retries: 10
+      interval: 10s
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: felipesbakery_redis_dev
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_dev_data:/data
+    command: redis-server --appendonly yes --requirepass redis_dev_password
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'redis_dev_password', 'ping']
+      timeout: 3s
+      retries: 5
+      interval: 10s
+
+  # Redis Commander — UI para inspecionar Redis em dev
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: felipesbakery_redis_ui
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: 'local:redis:6379:0:redis_dev_password'
+    ports:
+      - '8081:8081'
+    depends_on:
+      redis:
+        condition: service_healthy
+    profiles:
+      - tools
+
+volumes:
+  mysql_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  default:
+    name: felipesbakery_dev_network
