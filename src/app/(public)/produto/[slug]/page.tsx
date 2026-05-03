@@ -28,8 +28,8 @@ import { Cracha }                    from '@frontend/compartilhado/ui/cracha'
 import { Separador }                 from '@frontend/compartilhado/ui/separador'
 import { formatarMoeda }             from '@compartilhado/utils'
 
-// Sempre busca dados frescos — preço e estoque mudam
-export const dynamic = 'force-dynamic'
+// revalidate=0 → sempre busca dados frescos do banco (sem conflito com generateStaticParams)
+export const revalidate = 0
 
 // ── Parâmetros estáticos ──────────────────────────────────────
 // Gera uma página estática para cada produto no build.
