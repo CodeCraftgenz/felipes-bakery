@@ -76,7 +76,9 @@ function criarPool(): mysql.Pool {
 
   // Listener obrigatório: sem ele, erros de conexão MySQL viram exceções
   // não tratadas que matam o processo Node.js (resulta em 503 na Hostinger).
-  pool.on('error', (err) => {
+  // Cast para EventEmitter porque os tipos do mysql2 não declaram 'error' no Pool,
+  // mas o evento existe em runtime (node-mysql2 herda de EventEmitter).
+  ;(pool as unknown as NodeJS.EventEmitter).on('error', (err: Error) => {
     console.error('[Banco] Erro no pool MySQL (não fatal):', err.message)
   })
 
