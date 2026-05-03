@@ -85,7 +85,7 @@ export default auth(async function middleware(req: NextRequest & { auth: any }) 
 // ─── Matcher: quais rotas o middleware processa ───────────
 export const config = {
   matcher: [
-    // Processa todas as rotas exceto assets estáticos e API de auth
-    '/((?!_next/static|_next/image|favicon.ico|images/|api/auth).*)',
+    // Processa todas as rotas exceto assets estáticos, auth e healthz
+    '/((?!_next/static|_next/image|favicon.ico|images/|api/auth|api/healthz).*)',
   ],
 }

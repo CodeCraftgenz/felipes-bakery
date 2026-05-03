@@ -54,14 +54,12 @@ function criarPool(): mysql.Pool {
     timezone:           'Z',
   }
 
-  if (url) {
-    // Preferência: URL completa
-    return mysql.createPool({ ...opcoes, uri: url })
-  }
+  let pool: mysql.Pool
 
-  if (host && user && pass && name) {
-    // Alternativa: variáveis individuais
-    return mysql.createPool({
+  if (url) {
+    pool = mysql.createPool({ ...opcoes, uri: url })
+  } else if (host && user && pass && name) {
+    pool = mysql.createPool({
       ...opcoes,
       host,
       port:     Number(process.env.DB_PORT ?? 3306),
@@ -69,12 +67,20 @@ function criarPool(): mysql.Pool {
       password: pass,
       database: name,
     })
+  } else {
+    throw new Error(
+      '[Banco] Configuração do banco ausente.\n' +
+      'Defina DATABASE_URL  OU  DB_HOST + DB_USER + DB_PASSWORD + DB_NAME'
+    )
   }
 
-  throw new Error(
-    '[Banco] Configuração do banco ausente.\n' +
-    'Defina DATABASE_URL  OU  DB_HOST + DB_USER + DB_PASSWORD + DB_NAME'
-  )
+  // Listener obrigatório: sem ele, erros de conexão MySQL viram exceções
+  // não tratadas que matam o processo Node.js (resulta em 503 na Hostinger).
+  pool.on('error', (err) => {
+    console.error('[Banco] Erro no pool MySQL (não fatal):', err.message)
+  })
+
+  return pool
 }
 
 /**
