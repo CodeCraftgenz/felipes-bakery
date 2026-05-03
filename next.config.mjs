@@ -1,12 +1,5 @@
-import type { NextConfig } from 'next'
-
-const nextConfig: NextConfig = {
-  // Hostinger Node.js Web App roda `next start` direto — sem standalone.
-  // Para deploy em Docker/Kubernetes que se beneficie do bundle reduzido,
-  // reabilite descomentando a linha abaixo e ajustando o script `start`
-  // do package.json para `node .next/standalone/server.js`.
-  // output: 'standalone',
-
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   experimental: {
     ppr: false,
   },
@@ -25,17 +18,14 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      // Imagens de demonstração (Pexels — licença gratuita para uso comercial)
       {
         protocol: 'https',
         hostname: 'images.pexels.com',
       },
-      // Imagens de demonstração (Unsplash)
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
-      // Dev: localhost uploads
       {
         protocol: 'http',
         hostname: 'localhost',
@@ -46,7 +36,6 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
 
-  // Headers de segurança (complementam o Nginx em produção)
   async headers() {
     return [
       {
@@ -61,7 +50,6 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Redirecionar /admin para /admin/dashboard
   async redirects() {
     return [
       {
@@ -72,7 +60,6 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Logs de desenvolvimento
   logging: {
     fetches: {
       fullUrl: process.env.NODE_ENV === 'development',
