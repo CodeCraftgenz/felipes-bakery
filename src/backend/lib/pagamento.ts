@@ -24,9 +24,11 @@ declare global {
   var __mpClient: MercadoPagoConfig | undefined
 }
 
-function criarClienteMP(): MercadoPagoConfig {
-  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN
+// Lazy: só inicializa quando realmente usado (evita erro no build sem envs)
+function obterClienteMP(): MercadoPagoConfig {
+  if (globalThis.__mpClient) return globalThis.__mpClient
 
+  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN
   if (!accessToken) {
     throw new Error(
       '[Pagamento] MERCADOPAGO_ACCESS_TOKEN não está definido.\n' +
@@ -34,14 +36,11 @@ function criarClienteMP(): MercadoPagoConfig {
     )
   }
 
-  return new MercadoPagoConfig({ accessToken })
-}
-
-/** Instância singleton do cliente Mercado Pago */
-export const mpClient = globalThis.__mpClient ?? criarClienteMP()
-
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.__mpClient = mpClient
+  const client = new MercadoPagoConfig({ accessToken })
+  if (process.env.NODE_ENV !== 'production') {
+    globalThis.__mpClient = client
+  }
+  return client
 }
 
 // ── Tipos de domínio ──────────────────────────────────────────
@@ -87,7 +86,7 @@ export interface ResultadoPix {
 export async function criarPagamentoPix(
   dados: DadosPagamentoPix,
 ): Promise<ResultadoPix> {
-  const payment = new Payment(mpClient)
+  const payment = new Payment(obterClienteMP())
 
   // Expiração: 30 minutos a partir de agora
   const expiracao = new Date(Date.now() + 30 * 60 * 1000)
@@ -148,7 +147,7 @@ export async function criarPagamentoPix(
  * @param pagamentoMpId - ID do pagamento no MP
  */
 export async function consultarPagamento(pagamentoMpId: string) {
-  const payment = new Payment(mpClient)
+  const payment = new Payment(obterClienteMP())
   const resultado = await payment.get({ id: pagamentoMpId })
   return {
     id:     String(resultado.id),
