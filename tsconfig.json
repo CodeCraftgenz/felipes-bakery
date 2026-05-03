@@ -37,5 +37,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "banco/seeds", "drizzle"]
+  "exclude": ["node_modules", "banco/seeds", "drizzle", "drizzle.config.ts"]
 }
