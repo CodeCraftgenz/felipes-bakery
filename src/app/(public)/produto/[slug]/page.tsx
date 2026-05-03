@@ -36,8 +36,13 @@ export const revalidate = 3600
 // `buscarSlugsProdutos` retorna `{ slug: string }[]`, então mapeamos
 // extraindo o campo `.slug` para o formato esperado pelo Next.
 export async function generateStaticParams() {
-  const registros = await buscarSlugsProdutos()
-  return registros.map(({ slug }) => ({ slug }))
+  try {
+    const registros = await buscarSlugsProdutos()
+    return registros.map(({ slug }) => ({ slug }))
+  } catch {
+    // Banco indisponível no build → páginas geradas sob demanda em runtime
+    return []
+  }
 }
 
 // ── Metadata dinâmica ─────────────────────────────────────────
