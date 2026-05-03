@@ -36,12 +36,12 @@ export const dynamic = 'force-dynamic'
 
 // ── Página ────────────────────────────────────────────────────
 export default async function PaginaHome() {
-  // Busca todos os dados em paralelo para minimizar o tempo de carregamento
+  // Tenta buscar dados; retorna vazios se banco indisponível
   const [banners, categorias, produtosDestaque, configuracoes] = await Promise.all([
-    buscarBanners(),
-    buscarCategorias(),
-    buscarProdutosDestaque(6),
-    buscarConfiguracoes(),
+    buscarBanners().catch(() => []),
+    buscarCategorias().catch(() => []),
+    buscarProdutosDestaque(6).catch(() => []),
+    buscarConfiguracoes().catch(() => undefined),
   ])
 
   return (
@@ -56,7 +56,7 @@ export default async function PaginaHome() {
       <SecaoProdutosDestaque produtos={produtosDestaque} />
 
       {/* 4. Como funciona o ciclo de pedidos */}
-      <SecaoCicloEntrega configuracoes={configuracoes} />
+      {configuracoes && <SecaoCicloEntrega configuracoes={configuracoes} />}
     </>
   )
 }
