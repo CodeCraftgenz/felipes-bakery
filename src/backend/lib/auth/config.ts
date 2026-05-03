@@ -53,21 +53,34 @@ export const authConfig: NextAuthConfig = {
     error:  '/login',
   },
 
+  // Confia no host injetado pela infra (Hostinger Node.js Web App, Nginx
+  // proxy reverso, etc.). Sem isso o NextAuth lança UntrustedHost no edge
+  // runtime e nas API routes em produção.
+  trustHost: true,
+
   providers: [
     // ── Google OAuth (clientes do site) ───────────────────
-    Google({
-      clientId:     process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      profile(perfil) {
-        return {
-          id:    perfil.sub,
-          name:  perfil.name,
-          email: perfil.email,
-          image: perfil.picture,
-          role:  'customer' as const,
-        }
-      },
-    }),
+    // Só registra o provider quando as credenciais OAuth estão definidas.
+    // Em ambientes sem Google configurado (ex: deploy inicial na Hostinger
+    // antes de configurar OAuth), evita que o NextAuth derrube a aplicação
+    // na inicialização por causa de clientId/clientSecret indefinidos.
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          Google({
+            clientId:     process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            profile(perfil) {
+              return {
+                id:    perfil.sub,
+                name:  perfil.name,
+                email: perfil.email,
+                image: perfil.picture,
+                role:  'customer' as const,
+              }
+            },
+          }),
+        ]
+      : []),
 
     // ── Credenciais — Clientes do site ────────────────────
     Credentials({

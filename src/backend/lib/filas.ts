@@ -29,7 +29,7 @@
 
 import 'server-only'
 
-import { Queue }     from 'bullmq'
+import { Queue, type QueueOptions } from 'bullmq'
 import { redis }     from './redis'
 import { criarLogger } from './logger'
 
@@ -74,47 +74,65 @@ export type DadosJobNotificacao = {
 // fará fallback síncrono.
 
 /**
+ * Cria uma fila BullMQ com tratamento defensivo.
+ * Se a criação falhar (ex: BullMQ tentando usar a conexão e ela não estar
+ * pronta, módulo corrompido, etc.), retorna `null` e o app cai no fallback
+ * síncrono em vez de derrubar o processo na inicialização.
+ */
+function criarFila<T>(nome: string, opcoes: QueueOptions): Queue<T> | null {
+  if (!redis) return null
+  try {
+    return new Queue<T>(nome, opcoes)
+  } catch (err) {
+    log.error({ err, nome }, 'Falha ao criar fila BullMQ — operando em modo síncrono')
+    return null
+  }
+}
+
+/**
  * Fila de e-mails transacionais.
- * `null` quando REDIS_URL não está configurada.
+ * `null` quando REDIS_URL não está configurada ou a criação da fila falha.
  * Processada pelo emailWorker.ts com tentativas automáticas em caso de falha.
  */
-export const filaEmail: Queue<DadosJobEmail> | null = redis
-  ? new Queue<DadosJobEmail>('email', {
-      connection: redis,
-      defaultJobOptions: {
-        // Tenta enviar até 3 vezes antes de mover para fila de falhas
-        attempts: 3,
-        backoff: {
-          type:  'exponential',
-          delay: 2_000, // começa com 2s, depois 4s, 8s...
-        },
-        // Remove jobs bem-sucedidos após 24h (evita crescimento infinito do Redis)
-        removeOnComplete: { age: 86_400 },
-        // Mantém os últimos 100 jobs com falha para diagnóstico
-        removeOnFail: { count: 100 },
+export const filaEmail: Queue<DadosJobEmail> | null = criarFila<DadosJobEmail>(
+  'email',
+  {
+    connection: redis!,
+    defaultJobOptions: {
+      // Tenta enviar até 3 vezes antes de mover para fila de falhas
+      attempts: 3,
+      backoff: {
+        type:  'exponential',
+        delay: 2_000, // começa com 2s, depois 4s, 8s...
       },
-    })
-  : null
+      // Remove jobs bem-sucedidos após 24h (evita crescimento infinito do Redis)
+      removeOnComplete: { age: 86_400 },
+      // Mantém os últimos 100 jobs com falha para diagnóstico
+      removeOnFail: { count: 100 },
+    },
+  },
+)
 
 /**
  * Fila de notificações WhatsApp e push.
- * `null` quando REDIS_URL não está configurada.
+ * `null` quando REDIS_URL não está configurada ou a criação da fila falha.
  * Placeholder — worker a ser implementado em fase futura.
  */
-export const filaNotificacao: Queue<DadosJobNotificacao> | null = redis
-  ? new Queue<DadosJobNotificacao>('notificacao', {
-      connection: redis,
-      defaultJobOptions: {
-        attempts: 2,
-        backoff: {
-          type:  'fixed',
-          delay: 5_000, // aguarda 5s entre tentativas
-        },
-        removeOnComplete: { age: 86_400 },
-        removeOnFail:     { count: 50 },
+export const filaNotificacao: Queue<DadosJobNotificacao> | null = criarFila<DadosJobNotificacao>(
+  'notificacao',
+  {
+    connection: redis!,
+    defaultJobOptions: {
+      attempts: 2,
+      backoff: {
+        type:  'fixed',
+        delay: 5_000, // aguarda 5s entre tentativas
       },
-    })
-  : null
+      removeOnComplete: { age: 86_400 },
+      removeOnFail:     { count: 50 },
+    },
+  },
+)
 
 // Registra as filas criadas no log de inicialização
 if (filaEmail || filaNotificacao) {

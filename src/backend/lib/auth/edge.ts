@@ -22,6 +22,10 @@ const edgeAuthConfig: NextAuthConfig = {
     signIn: '/login',
     error:  '/login',
   },
+  // Confia no host injetado pela infra (Hostinger Node.js Web App, Nginx
+  // proxy reverso, etc.). Sem isso o NextAuth lança UntrustedHost no edge
+  // runtime e o middleware retorna 500/503 em produção.
+  trustHost: true,
   // Sem providers — middleware só lê o JWT já existente
   providers: [],
   callbacks: {

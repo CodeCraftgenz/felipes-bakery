@@ -56,22 +56,32 @@ function criarCliente(): Redis | null {
     return null
   }
 
-  const cliente = new Redis(url, {
-    // Reconecta automaticamente com backoff exponencial
-    retryStrategy(tentativas) {
-      if (tentativas > 5) {
-        log.error('Redis: número máximo de tentativas de reconexão atingido')
-        return null // Para de tentar reconectar
-      }
-      // Aguarda entre 100ms e 3s antes de cada tentativa
-      return Math.min(tentativas * 200, 3000)
-    },
-    // Silencia erros não tratados (o retryStrategy já lida com falhas)
-    lazyConnect:              false,
-    enableOfflineQueue:       true,  // enfileira comandos enquanto reconecta
-    maxRetriesPerRequest:     3,
-    connectTimeout:           10_000, // 10 segundos para conectar
-  })
+  let cliente: Redis
+  try {
+    cliente = new Redis(url, {
+      // Reconecta automaticamente com backoff exponencial
+      retryStrategy(tentativas) {
+        if (tentativas > 5) {
+          log.error('Redis: número máximo de tentativas de reconexão atingido')
+          return null // Para de tentar reconectar
+        }
+        // Aguarda entre 100ms e 3s antes de cada tentativa
+        return Math.min(tentativas * 200, 3000)
+      },
+      // Conexão preguiçosa: não tenta conectar na importação do módulo.
+      // Garante que falhas de rede no Redis nunca derrubem a inicialização
+      // do servidor — só ocorrem quando algum comando é efetivamente enviado.
+      lazyConnect:              true,
+      enableOfflineQueue:       true,  // enfileira comandos enquanto reconecta
+      maxRetriesPerRequest:     3,
+      connectTimeout:           10_000, // 10 segundos para conectar
+    })
+  } catch (err) {
+    // Falha ao instanciar (URL inválida, módulo corrompido, etc.) não pode
+    // derrubar o app — registra o aviso e segue sem Redis.
+    log.error({ err }, 'Falha ao instanciar cliente Redis — operando sem cache/filas')
+    return null
+  }
 
   // Registra eventos de ciclo de vida da conexão
   cliente.on('connect',    () => log.info('Redis conectado'))
