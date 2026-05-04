@@ -58,10 +58,8 @@ function criarPool(): mysql.Pool {
 
   const socket = process.env.DB_SOCKET
 
-  if (url) {
-    pool = mysql.createPool({ ...opcoes, uri: url })
-  } else if (socket && user && pass && name) {
-    // Socket Unix — contorna restrição de host TCP no shared hosting
+  if (socket && user && pass && name) {
+    // Socket Unix — prioridade máxima, contorna restrição de host TCP
     pool = mysql.createPool({
       ...opcoes,
       socketPath: socket,
@@ -69,6 +67,8 @@ function criarPool(): mysql.Pool {
       password:   pass,
       database:   name,
     })
+  } else if (url) {
+    pool = mysql.createPool({ ...opcoes, uri: url })
   } else if (host && user && pass && name) {
     pool = mysql.createPool({
       ...opcoes,
