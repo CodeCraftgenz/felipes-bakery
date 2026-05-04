@@ -56,8 +56,19 @@ function criarPool(): mysql.Pool {
 
   let pool: mysql.Pool
 
+  const socket = process.env.DB_SOCKET
+
   if (url) {
     pool = mysql.createPool({ ...opcoes, uri: url })
+  } else if (socket && user && pass && name) {
+    // Socket Unix — contorna restrição de host TCP no shared hosting
+    pool = mysql.createPool({
+      ...opcoes,
+      socketPath: socket,
+      user,
+      password:   pass,
+      database:   name,
+    })
   } else if (host && user && pass && name) {
     pool = mysql.createPool({
       ...opcoes,
@@ -70,7 +81,7 @@ function criarPool(): mysql.Pool {
   } else {
     throw new Error(
       '[Banco] Configuração do banco ausente.\n' +
-      'Defina DATABASE_URL  OU  DB_HOST + DB_USER + DB_PASSWORD + DB_NAME'
+      'Defina DATABASE_URL  OU  DB_SOCKET + DB_USER + DB_PASSWORD + DB_NAME  OU  DB_HOST + DB_USER + DB_PASSWORD + DB_NAME'
     )
   }
 
