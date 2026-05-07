@@ -1,93 +1,49 @@
-version: '3.9'
-
-# Docker Compose para PRODUÇÃO (VPS)
-# Uso: docker compose -f docker-compose.prod.yml up -d
-# Variáveis de ambiente carregadas do arquivo .env.production (nunca commitado)
-
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_ENV: production
-    container_name: felipesbakery_app
-    restart: always
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: ${DATABASE_URL}
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      REDIS_URL: ${REDIS_URL}
-    env_file:
-      - .env.production
-    ports:
-      - '3000:3000'
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - app_logs:/app/logs
-    networks:
-      - bakery_network
-
   mysql:
     image: mysql:8.0
-    container_name: felipesbakery_mysql_prod
-    restart: always
+    container_name: felipesbakery_mysql
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?obrigatorio}
+      MYSQL_DATABASE: felipebakery
+      MYSQL_USER: felipebakery
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?obrigatorio}
     volumes:
-      - mysql_prod_data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d
-      - ./docker/mysql/conf:/etc/mysql/conf.d
+      - mysql_data:/var/lib/mysql
     command: >
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
-      --innodb-buffer-pool-size=512M
-      --max-connections=200
-      --slow-query-log=1
-      --long-query-time=2
-    # NOTA: porta MySQL NÃO exposta para fora do container (segurança)
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', '${MYSQL_USER}', '-p${MYSQL_PASSWORD}']
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ufelipebakery", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
       timeout: 5s
       retries: 10
-      interval: 30s
-    networks:
-      - bakery_network
 
-  redis:
-    image: redis:7.2-alpine
-    container_name: felipesbakery_redis_prod
-    restart: always
-    volumes:
-      - redis_prod_data:/data
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
-    # NOTA: porta Redis NÃO exposta para fora do container
-    healthcheck:
-      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
-      timeout: 3s
-      retries: 5
-      interval: 30s
-    networks:
-      - bakery_network
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: felipesbakery_app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    env_file: .env.production
+    environment:
+      NODE_ENV: production
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: felipebakery
+      DB_PASSWORD: ${MYSQL_PASSWORD:?obrigatorio}
+      DB_NAME: felipebakery
+    depends_on:
+      mysql:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
-  mysql_prod_data:
-    driver: local
-  redis_prod_data:
-    driver: local
-  app_logs:
-    driver: local
-
-networks:
-  bakery_network:
-    name: felipesbakery_prod_network
-    driver: bridge
+  mysql_data:
