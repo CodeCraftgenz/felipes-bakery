@@ -322,3 +322,29 @@ export async function buscarProdutoPorId(id: number) {
 
   return produto ?? null
 }
+
+/**
+ * Lista todas as imagens de um produto ordenadas pela posição na galeria.
+ * Usada pelo gerenciador de imagens no painel admin.
+ */
+export type ImagemProduto = {
+  id:               number
+  url:              string
+  ordemExibicao:    number
+  principal:        number
+  textoAlternativo: string | null
+}
+
+export async function listarImagensProduto(produtoId: number): Promise<ImagemProduto[]> {
+  return db
+    .select({
+      id:               imagensProduto.id,
+      url:              imagensProduto.url,
+      ordemExibicao:    imagensProduto.ordemExibicao,
+      principal:        imagensProduto.principal,
+      textoAlternativo: imagensProduto.textoAlternativo,
+    })
+    .from(imagensProduto)
+    .where(eq(imagensProduto.produtoId, produtoId))
+    .orderBy(asc(imagensProduto.ordemExibicao))
+}

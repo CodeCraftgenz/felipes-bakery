@@ -1,7 +1,7 @@
 ﻿/**
- * PÃ¡gina de Clientes â€” Felipe's Bakery Admin
+ * Página de Clientes "” Felipe's Bakery Admin
  *
- * Lista paginada de clientes com busca e mÃ©tricas de compra.
+ * Lista paginada de clientes com busca e métricas de compra.
  * Server Component.
  */
 
@@ -14,7 +14,7 @@ import { listarClientes } from '@backend/modulos/clientes/queries'
 import { Paginacao }      from '@frontend/admin/compartilhado/Paginacao'
 
 export const metadata: Metadata = {
-  title:  'Clientes â€” Admin',
+  title:  'Clientes "” Admin',
   robots: { index: false, follow: false },
 }
 
@@ -42,7 +42,7 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-5">
-      {/* CabeÃ§alho */}
+      {/* Cabeçalho */}
       <div>
         <h1 className="font-serif text-2xl font-bold text-brand-950">Clientes</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
@@ -50,7 +50,7 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      {/* Busca â€” simples form GET (Server Component compatÃ­vel) */}
+      {/* Busca "” simples form GET (Server Component compatível) */}
       <form method="GET" className="flex items-center gap-2">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -101,7 +101,7 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
                   <p className="text-xs text-muted-foreground">{cliente.email}</p>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">
-                  {cliente.telefone ?? 'â€”'}
+                  {cliente.telefone ?? '"”'}
                 </td>
                 <td className="px-4 py-3 text-center font-medium">
                   {cliente.totalPedidos}
@@ -118,7 +118,7 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
         </table>
       </div>
 
-      {/* PaginaÃ§Ã£o */}
+      {/* Paginação */}
       <Suspense>
         <Paginacao
           paginaAtual={resultado.pagina}

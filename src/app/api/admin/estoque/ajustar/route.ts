@@ -1,5 +1,5 @@
 ﻿/**
- * API Admin â€” Ajuste de Estoque
+ * API Admin "” Ajuste de Estoque
  * POST /api/admin/estoque/ajustar
  */
 
@@ -17,12 +17,12 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'NÃ£o autorizado' }, { status: 401 })
+  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const body  = await req.json().catch(() => null)
   const parse = schema.safeParse(body)
   if (!parse.success) {
-    return NextResponse.json({ erro: 'Dados invÃ¡lidos', detalhes: parse.error.flatten() }, { status: 400 })
+    return NextResponse.json({ erro: 'Dados inválidos', detalhes: parse.error.flatten() }, { status: 400 })
   }
 
   const { produtoId, tipo, quantidade, motivo } = parse.data

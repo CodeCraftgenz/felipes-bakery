@@ -8,6 +8,24 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
+// ── Mock de localStorage para o Zustand persist ────────────────
+// jsdom provê localStorage mas certos middlewares acessam antes da
+// inicialização completa do DOM. Fornecer um mock determinístico
+// evita "storage.setItem is not a function" em ambiente de testes.
+const armazenamento = new Map<string, string>()
+const localStorageMock: Storage = {
+  get length() { return armazenamento.size },
+  clear:        () => armazenamento.clear(),
+  getItem:      (chave) => armazenamento.get(chave) ?? null,
+  setItem:      (chave, valor) => { armazenamento.set(chave, String(valor)) },
+  removeItem:   (chave) => { armazenamento.delete(chave) },
+  key:          (indice) => Array.from(armazenamento.keys())[indice] ?? null,
+}
+Object.defineProperty(globalThis, 'localStorage', {
+  value:    localStorageMock,
+  writable: true,
+})
+
 // ── Variáveis de ambiente mínimas para testes ─────────────────
 process.env.DATABASE_URL    = 'mysql://test:test@localhost:3306/test'
 process.env.NEXTAUTH_SECRET = 'test-secret-32-chars-minimum-ok!'

@@ -1,9 +1,9 @@
 ﻿/**
- * PÃ¡gina Dashboard Admin â€” Felipe's Bakery
+ * Página Dashboard Admin "” Felipe's Bakery
  *
  * KPIs de receita, pedidos, clientes e produtos.
  * Dados carregados em paralelo no servidor via Promise.all.
- * Server Component â€” sem dados sensÃ­veis expostos ao cliente.
+ * Server Component "” sem dados sensíveis expostos ao cliente.
  */
 
 import type { Metadata }      from 'next'
@@ -22,11 +22,11 @@ import { TabelaPedidosRecentes }      from '@frontend/admin/dashboard/TabelaPedi
 import { ListaProdutosMaisVendidos }  from '@frontend/admin/dashboard/ListaProdutosMaisVendidos'
 
 export const metadata: Metadata = {
-  title:  'Dashboard â€” Admin',
+  title:  'Dashboard "” Admin',
   robots: { index: false, follow: false },
 }
 
-// Sem cache â€” dados financeiros devem ser sempre frescos
+// Sem cache "” dados financeiros devem ser sempre frescos
 export const revalidate = 0
 
 function formatarMoeda(valor: number): string {
@@ -40,7 +40,7 @@ export default async function AdminDashboardPage() {
   const session = await auth()
   if (!session?.user) redirect('/admin/login')
 
-  // Carrega todas as mÃ©tricas em paralelo
+  // Carrega todas as métricas em paralelo
   const [metricas, pedidosRecentes, topProdutos] = await Promise.all([
     buscarMetricasDashboard(),
     buscarPedidosRecentes(8),
@@ -49,11 +49,11 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* CabeÃ§alho */}
+      {/* Cabeçalho */}
       <div>
         <h1 className="font-serif text-2xl font-bold text-brand-950">Dashboard</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Bem-vindo, {session.user.name} â€” visÃ£o geral da sua padaria
+          Bem-vindo, {session.user.name} "” visão geral da sua padaria
         </p>
       </div>
 
@@ -67,7 +67,7 @@ export default async function AdminDashboardPage() {
           corIcone="verde"
         />
         <CartaoMetrica
-          titulo="Receita do MÃªs"
+          titulo="Receita do Mês"
           valor={formatarMoeda(metricas.receitaMes)}
           variacao={metricas.variacaoReceita}
           icone={DollarSign}
@@ -76,14 +76,14 @@ export default async function AdminDashboardPage() {
         <CartaoMetrica
           titulo="Pedidos Pendentes"
           valor={String(metricas.pedidosPendentes)}
-          descricao="Aguardando ou em produÃ§Ã£o"
+          descricao="Aguardando ou em produção"
           icone={Clock}
           corIcone={metricas.pedidosPendentes > 10 ? 'amarelo' : 'azul'}
         />
         <CartaoMetrica
           titulo="Pedidos (30 dias)"
           valor={String(metricas.pedidosUltimos30d)}
-          descricao="ExcluÃ­dos os cancelados"
+          descricao="Excluídos os cancelados"
           icone={ShoppingCart}
           corIcone="azul"
         />
@@ -97,7 +97,7 @@ export default async function AdminDashboardPage() {
         <CartaoMetrica
           titulo="Produtos Ativos"
           valor={String(metricas.totalProdutos)}
-          descricao="Publicados no catÃ¡logo"
+          descricao="Publicados no catálogo"
           icone={Package}
           corIcone="brand"
         />

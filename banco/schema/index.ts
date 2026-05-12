@@ -30,6 +30,9 @@ export * from './estoque'
 /** Cupons de desconto */
 export * from './cupons'
 
+/** Combos sazonais (datas comemorativas) */
+export * from './combos'
+
 // ── 3. Entidades que dependem das anteriores ─────────────
 /** Pedidos, itens e histórico de status */
 export * from './pedidos'

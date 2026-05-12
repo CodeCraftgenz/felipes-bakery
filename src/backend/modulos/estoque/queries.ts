@@ -35,6 +35,28 @@ export type MovimentacaoEstoque = {
 // ── Funções ───────────────────────────────────────────────────
 
 /**
+ * Retorna o estoque de um produto específico.
+ * Retorna { quantidade: 0, alertaMinimo: 3 } como padrão se o registro
+ * ainda não existir (não deve acontecer pois criarProduto inicializa,
+ * mas é defensivo).
+ */
+export async function buscarEstoqueProduto(produtoId: number): Promise<{
+  quantidade:   number
+  alertaMinimo: number
+}> {
+  const [linha] = await db
+    .select({
+      quantidade:   estoque.quantidade,
+      alertaMinimo: estoque.alertaMinimo,
+    })
+    .from(estoque)
+    .where(eq(estoque.produtoId, produtoId))
+    .limit(1)
+
+  return linha ?? { quantidade: 0, alertaMinimo: 3 }
+}
+
+/**
  * Lista o estoque de todos os produtos ativos com status de alerta.
  * Ordenado: produtos em alerta primeiro, depois por nome.
  */

@@ -19,9 +19,13 @@ import { buscarBanners }             from '@backend/modulos/banners/queries'
 import { buscarCategorias }          from '@backend/modulos/categorias/queries'
 import { buscarProdutosDestaque }    from '@backend/modulos/produtos/queries'
 import { buscarConfiguracoes }       from '@backend/modulos/configuracoes/queries'
+import { listarCombosPublicos }      from '@backend/modulos/combos/queries'
+import { listarCuponsPublicos }      from '@backend/modulos/cupons/queries'
 import { SecaoHero }                 from '@frontend/publico/home/SecaoHero'
 import { SecaoCategorias }           from '@frontend/publico/home/SecaoCategorias'
 import { SecaoProdutosDestaque }     from '@frontend/publico/home/SecaoProdutosDestaque'
+import { SecaoCombos }               from '@frontend/publico/home/SecaoCombos'
+import { SecaoCupons }               from '@frontend/publico/home/SecaoCupons'
 import { SecaoCicloEntrega }         from '@frontend/publico/home/SecaoCicloEntrega'
 
 // ── Metadata da Página ────────────────────────────────────────
@@ -37,10 +41,12 @@ export const dynamic = 'force-dynamic'
 // ── Página ────────────────────────────────────────────────────
 export default async function PaginaHome() {
   // Tenta buscar dados; retorna vazios se banco indisponível
-  const [banners, categorias, produtosDestaque, configuracoes] = await Promise.all([
+  const [banners, categorias, produtosDestaque, combos, cupons, configuracoes] = await Promise.all([
     buscarBanners().catch(() => []),
     buscarCategorias().catch(() => []),
     buscarProdutosDestaque(6).catch(() => []),
+    listarCombosPublicos().catch(() => []),
+    listarCuponsPublicos().catch(() => []),
     buscarConfiguracoes().catch(() => undefined),
   ])
 
@@ -49,13 +55,19 @@ export default async function PaginaHome() {
       {/* 1. Banner principal */}
       <SecaoHero banners={banners} />
 
-      {/* 2. Grid de categorias */}
+      {/* 2. Combos sazonais (se houver algum ativo) */}
+      <SecaoCombos combos={combos} />
+
+      {/* 3. Cupons disponíveis (admin solta no painel, aparece aqui) */}
+      <SecaoCupons cupons={cupons} />
+
+      {/* 4. Grid de categorias */}
       <SecaoCategorias categorias={categorias} />
 
-      {/* 3. Produtos em destaque */}
+      {/* 5. Produtos em destaque */}
       <SecaoProdutosDestaque produtos={produtosDestaque} />
 
-      {/* 4. Como funciona o ciclo de pedidos */}
+      {/* 6. Como funciona o ciclo de pedidos */}
       {configuracoes && <SecaoCicloEntrega configuracoes={configuracoes} />}
     </>
   )

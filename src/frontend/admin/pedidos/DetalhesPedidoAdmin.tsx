@@ -82,7 +82,7 @@ export function DetalhesPedidoAdmin({ pedido }: DetalhesPedidoAdminProps) {
           <CartaoCabecalho>
             <CartaoTitulo className="text-base">Itens do Pedido</CartaoTitulo>
           </CartaoCabecalho>
-          <CartaoConteudo className="p-0">
+          <CartaoConteudo className="overflow-x-auto p-0">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-stone-50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">

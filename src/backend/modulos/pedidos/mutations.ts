@@ -59,7 +59,7 @@ export interface PedidoCriado {
  *   2. Insere cada item com snapshot de preço e nome do produto
  *   3. Registra o evento inicial no histórico de status
  *
- * Observação: a baixa de estoque NÃO acontece aqui — só ocorre após
+ * Observação: a baixa de estoque NÁO acontece aqui — só ocorre após
  * confirmação de pagamento via webhook do Mercado Pago.
  */
 export async function criarPedido(dados: DadosCriarPedido): Promise<PedidoCriado> {

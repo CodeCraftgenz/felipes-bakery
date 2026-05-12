@@ -6,7 +6,7 @@
  */
 
 import 'server-only'
-import { eq, and, sql, desc } from 'drizzle-orm'
+import { eq, and, sql, desc, gte, lte, isNull, or, ne } from 'drizzle-orm'
 import { db }                 from '@backend/lib/banco'
 import { cupons, usosCupom }  from '@schema'
 
@@ -163,4 +163,61 @@ export async function buscarCupomPorId(id: number) {
     .where(eq(cupons.id, id))
     .limit(1)
   return cupom ?? null
+}
+
+// ── Cupons públicos (vitrine) ─────────────────────────────────
+
+export type CupomPublico = {
+  codigo:        string
+  descricao:     string | null
+  tipo:          'percentual' | 'fixo'
+  valor:         string
+  valorMinimoPedido: string | null
+  validoAte:     Date | null
+}
+
+/**
+ * Lista cupons que devem aparecer publicamente na vitrine do site.
+ *
+ * Critérios:
+ *   - ativo = 1
+ *   - dentro da janela de validade (validoDesde/validoAte)
+ *   - NÃO é cupom de uso único (excludes lote — esses são personais)
+ *
+ * O admin controla a visibilidade simplesmente ativando/desativando.
+ */
+export async function listarCuponsPublicos(): Promise<CupomPublico[]> {
+  const agora = new Date()
+
+  const linhas = await db
+    .select({
+      codigo:            cupons.codigo,
+      descricao:         cupons.descricao,
+      tipo:              cupons.tipo,
+      valor:             cupons.valor,
+      valorMinimoPedido: cupons.valorMinimoPedido,
+      validoAte:         cupons.validoAte,
+    })
+    .from(cupons)
+    .where(and(
+      eq(cupons.ativo, 1),
+      // Exclui cupons de lote (maxUsos = 1, são códigos pessoais)
+      or(isNull(cupons.maxUsos), ne(cupons.maxUsos, 1)),
+      // Dentro da validade
+      or(isNull(cupons.validoDesde), lte(cupons.validoDesde, agora)),
+      or(isNull(cupons.validoAte),   gte(cupons.validoAte,   agora)),
+      // Não esgotado
+      or(isNull(cupons.maxUsos), sql`${cupons.usosAtuais} < ${cupons.maxUsos}`),
+    ))
+    .orderBy(desc(cupons.criadoEm))
+    .limit(6)
+
+  return linhas.map((l) => ({
+    codigo:            l.codigo,
+    descricao:         l.descricao,
+    tipo:              l.tipo as 'percentual' | 'fixo',
+    valor:             l.valor,
+    valorMinimoPedido: l.valorMinimoPedido,
+    validoAte:         l.validoAte,
+  }))
 }

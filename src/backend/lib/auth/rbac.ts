@@ -2,7 +2,7 @@
  * RBAC — Funções Puras (Edge-safe) — Felipe's Bakery
  *
  * Definições de permissões e helpers de checagem de papel.
- * NÃO importa banco de dados nem código Node-only — pode ser
+ * NÁO importa banco de dados nem código Node-only — pode ser
  * usado tanto no middleware (Edge Runtime) quanto no server.
  */
 

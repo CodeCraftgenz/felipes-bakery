@@ -12,7 +12,7 @@
  *   - Um produto só aparece no catálogo se: ativo=true E status='published' E deletedAt=NULL
  *   - Produto com estoque zero exibe "Esgotado" e bloqueia o botão de compra
  *   - comparePrice é o preço "de" (riscado) para indicar promoção
- *   - Alteração de preço NÃO afeta pedidos existentes (snapshot em order_items)
+ *   - Alteração de preço NÁO afeta pedidos existentes (snapshot em order_items)
  */
 
 import {

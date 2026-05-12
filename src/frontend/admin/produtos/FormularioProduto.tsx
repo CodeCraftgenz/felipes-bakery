@@ -87,8 +87,22 @@ export function FormularioProduto({
       return
     }
 
-    toast.success(modoEdicao ? 'Produto atualizado!' : 'Produto criado!')
-    router.push('/admin/produtos')
+    const json = await res.json().catch(() => ({}))
+
+    if (modoEdicao) {
+      toast.success('Produto atualizado!')
+      router.push('/admin/produtos')
+      router.refresh()
+      return
+    }
+
+    // Após criar, vai direto para a edição para adicionar imagens
+    toast.success('Produto criado! Adicione as imagens abaixo.')
+    if (json?.id) {
+      router.push(`/admin/produtos/${json.id}/editar`)
+    } else {
+      router.push('/admin/produtos')
+    }
     router.refresh()
   }
 
@@ -229,8 +243,9 @@ export function FormularioProduto({
         </div>
       </section>
 
-      {/* Botões */}
-      <div className="flex justify-end gap-3">
+      {/* Barra de ações sticky no rodapé — fica visível enquanto o usuário
+          rola pra mexer nas seções de imagem/estoque (que vêm depois) */}
+      <div className="sticky bottom-0 -mx-1 flex flex-col-reverse items-stretch gap-2 border-t border-stone-200 bg-cream-100/95 px-1 py-3 backdrop-blur sm:flex-row sm:justify-end">
         <Botao
           type="button"
           variante="contorno"
@@ -240,7 +255,7 @@ export function FormularioProduto({
         </Botao>
         <Botao type="submit" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {modoEdicao ? 'Salvar alterações' : 'Criar produto'}
+          {modoEdicao ? 'Salvar dados do produto' : 'Criar produto'}
         </Botao>
       </div>
     </form>

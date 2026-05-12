@@ -1,8 +1,8 @@
 ﻿/**
- * PÃ¡gina de GestÃ£o de Produtos â€” Felipe's Bakery Admin
+ * Página de Gestão de Produtos "” Felipe's Bakery Admin
  *
  * Listagem paginada com filtros por status, categoria e busca de texto.
- * Server Component â€” dados carregados no servidor.
+ * Server Component "” dados carregados no servidor.
  */
 
 import type { Metadata }      from 'next'
@@ -16,7 +16,7 @@ import { FiltrosProdutos }    from '@frontend/admin/produtos/FiltrosProdutos'
 import { Paginacao }          from '@frontend/admin/compartilhado/Paginacao'
 
 export const metadata: Metadata = {
-  title:  'Produtos â€” Admin',
+  title:  'Produtos "” Admin',
   robots: { index: false, follow: false },
 }
 
@@ -51,7 +51,7 @@ export default async function AdminProdutosPage({ searchParams }: PaginaProdutos
 
   return (
     <div className="space-y-5">
-      {/* CabeÃ§alho */}
+      {/* Cabeçalho */}
       <div>
         <h1 className="font-serif text-2xl font-bold text-brand-950">Produtos</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
@@ -59,7 +59,7 @@ export default async function AdminProdutosPage({ searchParams }: PaginaProdutos
         </p>
       </div>
 
-      {/* Filtros + botÃ£o novo */}
+      {/* Filtros + botão novo */}
       <Suspense>
         <FiltrosProdutos categorias={categorias} />
       </Suspense>
@@ -67,7 +67,7 @@ export default async function AdminProdutosPage({ searchParams }: PaginaProdutos
       {/* Tabela */}
       <TabelaProdutos produtos={resultado.itens} />
 
-      {/* PaginaÃ§Ã£o */}
+      {/* Paginação */}
       <Suspense>
         <Paginacao
           paginaAtual={resultado.pagina}

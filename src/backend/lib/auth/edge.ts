@@ -2,7 +2,7 @@
  * Auth Edge-Safe — Felipe's Bakery
  *
  * Configuração mínima do NextAuth para uso no middleware (Edge Runtime).
- * NÃO importa mysql2 nem providers que dependam de Node.js — apenas
+ * NÁO importa mysql2 nem providers que dependam de Node.js — apenas
  * verifica e enriquece o JWT.
  *
  * Use esta variante somente em `src/middleware.ts`.

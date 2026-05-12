@@ -1,5 +1,5 @@
 ﻿/**
- * PÃ¡gina de GestÃ£o de Pedidos â€” Felipe's Bakery Admin
+ * Página de Gestão de Pedidos "” Felipe's Bakery Admin
  *
  * Lista paginada com abas de status e busca de texto.
  * Server Component.
@@ -15,7 +15,7 @@ import { FiltrosPedidos }     from '@frontend/admin/pedidos/FiltrosPedidos'
 import { Paginacao }          from '@frontend/admin/compartilhado/Paginacao'
 
 export const metadata: Metadata = {
-  title:  'Pedidos â€” Admin',
+  title:  'Pedidos "” Admin',
   robots: { index: false, follow: false },
 }
 
@@ -44,7 +44,7 @@ export default async function AdminPedidosPage({ searchParams }: PaginaPedidosPr
 
   return (
     <div className="space-y-5">
-      {/* CabeÃ§alho */}
+      {/* Cabeçalho */}
       <div>
         <h1 className="font-serif text-2xl font-bold text-brand-950">Pedidos</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
@@ -60,7 +60,7 @@ export default async function AdminPedidosPage({ searchParams }: PaginaPedidosPr
       {/* Tabela */}
       <TabelaPedidos pedidos={resultado.itens} />
 
-      {/* PaginaÃ§Ã£o */}
+      {/* Paginação */}
       <Suspense>
         <Paginacao
           paginaAtual={resultado.pagina}

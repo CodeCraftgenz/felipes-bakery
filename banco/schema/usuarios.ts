@@ -4,7 +4,7 @@
  * Representa os funcionários e administradores com acesso
  * ao painel administrativo da Felipe's Bakery.
  *
- * NÃO confundir com `clientes` (tabela `customers`), que são
+ * NÁO confundir com `clientes` (tabela `customers`), que são
  * os compradores do site público.
  *
  * Papéis disponíveis:

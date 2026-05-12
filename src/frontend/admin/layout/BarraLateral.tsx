@@ -36,6 +36,7 @@ import {
   Settings,
   ClipboardList,
   Boxes,
+  Gift,
 } from 'lucide-react'
 import { cn }                      from '@compartilhado/utils'
 import { useAuth }                 from '@frontend/compartilhado/hooks'
@@ -81,7 +82,8 @@ const secoes: SecaoNav[] = [
   {
     titulo: 'Marketing',
     itens: [
-      { href: '/admin/banners',  rotulo: 'Banners',  icone: <Image className="h-4 w-4" />, papeis: ['admin_master', 'admin'] },
+      { href: '/admin/banners', rotulo: 'Banners', icone: <Image className="h-4 w-4" />, papeis: ['admin_master', 'admin'] },
+      { href: '/admin/combos',  rotulo: 'Combos',  icone: <Gift  className="h-4 w-4" />, papeis: ['admin_master', 'admin'] },
     ],
   },
   {

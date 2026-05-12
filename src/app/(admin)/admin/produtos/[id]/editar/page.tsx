@@ -7,9 +7,15 @@ import { auth }               from '@backend/lib/auth'
 import { notFound, redirect } from 'next/navigation'
 import Link                   from 'next/link'
 import { ChevronLeft }        from 'lucide-react'
-import { buscarProdutoPorId } from '@backend/modulos/produtos/queries'
-import { buscarCategorias }   from '@backend/modulos/categorias/queries'
-import { FormularioProduto }  from '@frontend/admin/produtos/FormularioProduto'
+import {
+  buscarProdutoPorId,
+  listarImagensProduto,
+} from '@backend/modulos/produtos/queries'
+import { buscarCategorias }            from '@backend/modulos/categorias/queries'
+import { buscarEstoqueProduto }        from '@backend/modulos/estoque/queries'
+import { FormularioProduto }           from '@frontend/admin/produtos/FormularioProduto'
+import { GerenciadorImagensProduto }   from '@frontend/admin/produtos/GerenciadorImagensProduto'
+import { GerenciadorEstoqueProduto }   from '@frontend/admin/produtos/GerenciadorEstoqueProduto'
 
 export const metadata: Metadata = {
   title:  'Editar Produto — Admin',
@@ -27,9 +33,11 @@ export default async function EditarProdutoPage({ params }: EditarProdutoPagePro
   const id = Number(params.id)
   if (isNaN(id)) notFound()
 
-  const [produto, categorias] = await Promise.all([
+  const [produto, categorias, imagens, estoqueProduto] = await Promise.all([
     buscarProdutoPorId(id),
     buscarCategorias(),
+    listarImagensProduto(id),
+    buscarEstoqueProduto(id),
   ])
 
   if (!produto) notFound()
@@ -62,6 +70,17 @@ export default async function EditarProdutoPage({ params }: EditarProdutoPagePro
           emDestaque:   produto.emDestaque as 0 | 1,
           status:       produto.status as 'published' | 'draft' | 'archived',
         }}
+      />
+
+      <GerenciadorImagensProduto
+        produtoId={produto.id}
+        imagensIniciais={imagens}
+      />
+
+      <GerenciadorEstoqueProduto
+        produtoId={produto.id}
+        quantidade={estoqueProduto.quantidade}
+        alertaMinimo={estoqueProduto.alertaMinimo}
       />
     </div>
   )

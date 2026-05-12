@@ -13,8 +13,13 @@ import React        from 'react'
 import Image        from 'next/image'
 import Link         from 'next/link'
 import { Trash2, Minus, Plus } from 'lucide-react'
+import { toast }    from 'sonner'
 import { Botao }    from '@frontend/compartilhado/ui/botao'
-import { useCarrinho, type ItemCarrinho as TipoItemCarrinho } from '@frontend/compartilhado/stores/carrinho'
+import {
+  useCarrinho,
+  LIMITE_POR_PRODUTO,
+  type ItemCarrinho as TipoItemCarrinho,
+} from '@frontend/compartilhado/stores/carrinho'
 import { formatarMoeda } from '@compartilhado/utils'
 
 // ── Props ─────────────────────────────────────────────────────
@@ -28,6 +33,16 @@ export function ItemCarrinho({ item }: PropsItemCarrinho) {
   const removerItem         = useCarrinho((s) => s.removerItem)
 
   const subtotal = item.preco * item.quantidade
+  const noLimite = item.quantidade >= LIMITE_POR_PRODUTO
+
+  const aumentar = () => {
+    const r = atualizarQuantidade(item.produtoId, item.quantidade + 1)
+    if (!r.ok) toast.error(r.mensagem)
+  }
+
+  const diminuir = () => {
+    atualizarQuantidade(item.produtoId, item.quantidade - 1)
+  }
 
   return (
     <div className="flex gap-4 py-5">
@@ -89,7 +104,7 @@ export function ItemCarrinho({ item }: PropsItemCarrinho) {
             <Botao
               variante="contorno"
               tamanho="icone"
-              onClick={() => atualizarQuantidade(item.produtoId, item.quantidade - 1)}
+              onClick={diminuir}
               disabled={item.quantidade <= 1}
               aria-label="Diminuir quantidade"
               className="h-8 w-8"
@@ -104,7 +119,8 @@ export function ItemCarrinho({ item }: PropsItemCarrinho) {
             <Botao
               variante="contorno"
               tamanho="icone"
-              onClick={() => atualizarQuantidade(item.produtoId, item.quantidade + 1)}
+              onClick={aumentar}
+              disabled={noLimite}
               aria-label="Aumentar quantidade"
               className="h-8 w-8"
             >

@@ -1,5 +1,5 @@
 ﻿/**
- * PÃ¡gina Controle de Estoque â€” Felipe's Bakery Admin
+ * Página Controle de Estoque "” Felipe's Bakery Admin
  *
  * Exibe todos os produtos com quantidade atual e alerta de estoque baixo.
  * Server Component.
@@ -13,7 +13,7 @@ import { listarEstoque, buscarProdutosEmAlerta } from '@backend/modulos/estoque/
 import { TabelaEstoque }     from '@frontend/admin/estoque/TabelaEstoque'
 
 export const metadata: Metadata = {
-  title:  'Estoque â€” Admin',
+  title:  'Estoque "” Admin',
   robots: { index: false, follow: false },
 }
 
@@ -30,7 +30,7 @@ export default async function AdminEstoquePage() {
 
   return (
     <div className="space-y-5">
-      {/* CabeÃ§alho */}
+      {/* Cabeçalho */}
       <div>
         <h1 className="font-serif text-2xl font-bold text-brand-950">Estoque</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
@@ -38,13 +38,13 @@ export default async function AdminEstoquePage() {
         </p>
       </div>
 
-      {/* Banner de alerta quando hÃ¡ produtos abaixo do mÃ­nimo */}
+      {/* Banner de alerta quando há produtos abaixo do mínimo */}
       {emAlerta.length > 0 && (
         <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
           <div>
             <p className="font-medium text-red-700">
-              {emAlerta.length} produto{emAlerta.length !== 1 ? 's' : ''} com estoque abaixo do mÃ­nimo
+              {emAlerta.length} produto{emAlerta.length !== 1 ? 's' : ''} com estoque abaixo do mínimo
             </p>
             <p className="mt-0.5 text-sm text-red-600">
               {emAlerta.map((p) => p.nomeProduto).join(', ')}

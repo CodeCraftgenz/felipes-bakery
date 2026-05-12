@@ -41,7 +41,7 @@ export function CartaoProduto({ produto }: PropsCartaoProduto) {
     if (semEstoque) return
 
     setAdicionando(true)
-    adicionarItem({
+    const resultado = adicionarItem({
       produtoId:  produto.id,
       slug:       produto.slug,
       nome:       produto.nome,
@@ -50,9 +50,13 @@ export function CartaoProduto({ produto }: PropsCartaoProduto) {
       pesoGramas: produto.pesoGramas,
     })
 
-    toast.success(`${produto.nome} adicionado ao carrinho!`, {
-      description: `R$ ${produto.preco.replace('.', ',')}`,
-    })
+    if (!resultado.ok) {
+      toast.error(resultado.mensagem)
+    } else {
+      toast.success(`${produto.nome} adicionado ao carrinho!`, {
+        description: `R$ ${produto.preco.replace('.', ',')}`,
+      })
+    }
 
     // Reset visual do botão após animação
     setTimeout(() => setAdicionando(false), 800)

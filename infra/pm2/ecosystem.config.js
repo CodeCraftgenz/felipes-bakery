@@ -39,7 +39,7 @@ module.exports = {
 
       // ── Reinicialização Automática ───────────────────────────
       autorestart: true,           // Reinicia em caso de crash
-      watch: false,                // NÃO observa arquivos em produção
+      watch: false,                // NÁO observa arquivos em produção
       max_memory_restart: '512M',  // Reinicia se usar mais de 512MB de RAM
 
       // ── Delay entre Reinicializações ─────────────────────────

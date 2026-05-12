@@ -12,7 +12,10 @@ import React          from 'react'
 import { ShoppingBag, Minus, Plus } from 'lucide-react'
 import { toast }      from 'sonner'
 import { Botao }      from '@frontend/compartilhado/ui/botao'
-import { useCarrinho } from '@frontend/compartilhado/stores/carrinho'
+import {
+  useCarrinho,
+  LIMITE_POR_PRODUTO,
+} from '@frontend/compartilhado/stores/carrinho'
 import { formatarMoeda } from '@compartilhado/utils'
 import type { ProdutoCompleto } from '@backend/modulos/produtos/queries'
 
@@ -28,7 +31,8 @@ export function BotaoAdicionarCarrinho({ produto }: PropsBotaoAdicionarCarrinho)
   const [adicionado, setAdicionado] = React.useState(false)
 
   const semEstoque = produto.estoqueQtd !== null && produto.estoqueQtd <= 0
-  const estoqueMaximo = produto.estoqueQtd ?? 99
+  // Quantidade máxima leva em conta o estoque E o limite do carrinho por produto
+  const estoqueMaximo = Math.min(produto.estoqueQtd ?? 99, LIMITE_POR_PRODUTO)
 
   const diminuirQuantidade = () => {
     setQuantidade((q) => Math.max(1, q - 1))
@@ -41,7 +45,7 @@ export function BotaoAdicionarCarrinho({ produto }: PropsBotaoAdicionarCarrinho)
   const aoAdicionarAoCarrinho = () => {
     if (semEstoque) return
 
-    adicionarItem(
+    const resultado = adicionarItem(
       {
         produtoId:  produto.id,
         slug:       produto.slug,
@@ -52,6 +56,11 @@ export function BotaoAdicionarCarrinho({ produto }: PropsBotaoAdicionarCarrinho)
       },
       quantidade,
     )
+
+    if (!resultado.ok) {
+      toast.error(resultado.mensagem)
+      return
+    }
 
     // Feedback visual
     setAdicionado(true)

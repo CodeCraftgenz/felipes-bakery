@@ -5,19 +5,34 @@
  * Persiste os itens no localStorage para que o carrinho sobreviva
  * ao recarregamento da página.
  *
+ * Limites de negócio:
+ *   - LIMITE_TOTAL_ITENS: máximo de unidades somadas no carrinho
+ *   - LIMITE_POR_PRODUTO: máximo de unidades de um mesmo produto
+ *   Esses limites refletem a capacidade de produção/entrega da padaria
+ *   e evitam pedidos abusivos ou erros de digitação do cliente.
+ *
  * Responsabilidades:
- *   - Adicionar / remover / atualizar quantidade de itens
+ *   - Adicionar / remover / atualizar quantidade de itens (com validação)
  *   - Calcular subtotal, desconto e total
  *   - Aplicar/remover cupom de desconto
  *   - Limpar o carrinho após finalização do pedido
  *
  * Uso:
  *   const { itens, adicionarItem, total } = useCarrinho()
+ *   const resultado = adicionarItem(produto)
+ *   if (!resultado.ok) toast.error(resultado.mensagem)
  */
 
 import { create }          from 'zustand'
 import { persist }         from 'zustand/middleware'
 import { immer }           from 'zustand/middleware/immer'
+
+// ── Limites de negócio ───────────────────────────────────────
+/** Quantidade máxima total de unidades no carrinho */
+export const LIMITE_TOTAL_ITENS = 50
+
+/** Quantidade máxima por produto individual */
+export const LIMITE_POR_PRODUTO = 20
 
 // ── Tipos ─────────────────────────────────────────────────────
 
@@ -47,6 +62,16 @@ export interface CupomAplicado {
   porcentagem?: number
 }
 
+/** Resultado de uma operação no carrinho (ok ou bloqueado pelo limite) */
+export type ResultadoCarrinho =
+  | { ok: true }
+  | {
+      ok: false
+      motivo:    'max_produto' | 'max_total'
+      limite:    number
+      mensagem:  string
+    }
+
 /** Estado e ações do carrinho */
 interface EstadoCarrinho {
   // ── Estado ────────────────────────────────────────────────
@@ -65,17 +90,30 @@ interface EstadoCarrinho {
 
   // ── Ações ─────────────────────────────────────────────────
   /** Adiciona um produto ou aumenta a quantidade se já existir */
-  adicionarItem:    (item: Omit<ItemCarrinho, 'quantidade'>, quantidade?: number) => void
+  adicionarItem: (
+    item: Omit<ItemCarrinho, 'quantidade'>,
+    quantidade?: number,
+  ) => ResultadoCarrinho
   /** Remove um produto completamente do carrinho */
   removerItem:      (produtoId: number) => void
   /** Atualiza a quantidade de um produto (0 = remove) */
-  atualizarQuantidade: (produtoId: number, quantidade: number) => void
+  atualizarQuantidade: (produtoId: number, quantidade: number) => ResultadoCarrinho
   /** Aplica cupom de desconto (vem do servidor após validação) */
   aplicarCupom:     (cupom: CupomAplicado) => void
   /** Remove o cupom aplicado */
   removerCupom:     () => void
   /** Limpa o carrinho (chamar após finalizar o pedido) */
   limparCarrinho:   () => void
+}
+
+// ── Helpers internos ─────────────────────────────────────────
+function somarOutrosItens(
+  itens: ItemCarrinho[],
+  produtoIdExcluir: number,
+): number {
+  return itens
+    .filter((i) => i.produtoId !== produtoIdExcluir)
+    .reduce((soma, i) => soma + i.quantidade, 0)
 }
 
 // ── Store ─────────────────────────────────────────────────────
@@ -118,20 +156,49 @@ export const useCarrinho = create<EstadoCarrinho>()(
 
       // ── Ações ──────────────────────────────────────────────
       adicionarItem: (novoItem, quantidade = 1) => {
+        const estadoAtual = get()
+        const itemExistente = estadoAtual.itens.find(
+          (i) => i.produtoId === novoItem.produtoId,
+        )
+        const quantidadeAtualProduto = itemExistente?.quantidade ?? 0
+        const quantidadeFinalProduto = quantidadeAtualProduto + quantidade
+
+        // Validação 1: limite por produto
+        if (quantidadeFinalProduto > LIMITE_POR_PRODUTO) {
+          return {
+            ok: false,
+            motivo:   'max_produto',
+            limite:   LIMITE_POR_PRODUTO,
+            mensagem: `Limite de ${LIMITE_POR_PRODUTO} unidades por produto atingido.`,
+          }
+        }
+
+        // Validação 2: limite total do carrinho
+        const totalOutros = somarOutrosItens(estadoAtual.itens, novoItem.produtoId)
+        if (totalOutros + quantidadeFinalProduto > LIMITE_TOTAL_ITENS) {
+          return {
+            ok: false,
+            motivo:   'max_total',
+            limite:   LIMITE_TOTAL_ITENS,
+            mensagem: `Limite de ${LIMITE_TOTAL_ITENS} itens no carrinho atingido.`,
+          }
+        }
+
         set((estado) => {
-          // Procura se o produto já está no carrinho
           const indice = estado.itens.findIndex(
             (i) => i.produtoId === novoItem.produtoId,
           )
 
           if (indice >= 0) {
             // Produto já existe — aumenta a quantidade
-            estado.itens[indice].quantidade += quantidade
+            estado.itens[indice].quantidade = quantidadeFinalProduto
           } else {
             // Produto novo — adiciona com a quantidade inicial
             estado.itens.push({ ...novoItem, quantidade })
           }
         })
+
+        return { ok: true }
       },
 
       removerItem: (produtoId) => {
@@ -141,17 +208,43 @@ export const useCarrinho = create<EstadoCarrinho>()(
       },
 
       atualizarQuantidade: (produtoId, quantidade) => {
-        set((estado) => {
-          if (quantidade <= 0) {
-            // Quantidade zero ou negativa = remove o item
+        if (quantidade <= 0) {
+          // Quantidade zero ou negativa = remove o item (sem violar limites)
+          set((estado) => {
             estado.itens = estado.itens.filter((i) => i.produtoId !== produtoId)
-            return
+          })
+          return { ok: true }
+        }
+
+        // Validação 1: limite por produto
+        if (quantidade > LIMITE_POR_PRODUTO) {
+          return {
+            ok: false,
+            motivo:   'max_produto',
+            limite:   LIMITE_POR_PRODUTO,
+            mensagem: `Limite de ${LIMITE_POR_PRODUTO} unidades por produto atingido.`,
           }
+        }
+
+        // Validação 2: limite total — soma outros itens + nova quantidade deste
+        const totalOutros = somarOutrosItens(get().itens, produtoId)
+        if (totalOutros + quantidade > LIMITE_TOTAL_ITENS) {
+          return {
+            ok: false,
+            motivo:   'max_total',
+            limite:   LIMITE_TOTAL_ITENS,
+            mensagem: `Limite de ${LIMITE_TOTAL_ITENS} itens no carrinho atingido.`,
+          }
+        }
+
+        set((estado) => {
           const item = estado.itens.find((i) => i.produtoId === produtoId)
           if (item) {
             item.quantidade = quantidade
           }
         })
+
+        return { ok: true }
       },
 
       aplicarCupom: (cupom) => {

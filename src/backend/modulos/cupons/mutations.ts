@@ -9,6 +9,10 @@ import 'server-only'
 import { eq, sql }   from 'drizzle-orm'
 import { db }        from '@backend/lib/banco'
 import { cupons }    from '@schema'
+import {
+  validarParametrosLote,
+  gerarCodigosUnicos,
+} from './helpers'
 
 // ── Tipos ─────────────────────────────────────────────────────
 
@@ -91,3 +95,55 @@ export async function deletarCupom(id: number) {
     .delete(cupons)
     .where(eq(cupons.id, id))
 }
+
+// ── Geração em lote ───────────────────────────────────────────
+
+export interface GerarLoteInput {
+  /** Prefixo aplicado a todos os códigos. Exemplo: "NATAL" → "NATAL-A1B2" */
+  prefixo:           string
+  /** Quantidade de cupons únicos a gerar (1 a 500) */
+  quantidade:        number
+  tipo:              'percentual' | 'fixo'
+  valor:             string
+  descricao?:        string | null
+  valorMinimoPedido?: string | null
+  maxDesconto?:      string | null
+  maxUsosPorCliente?: number
+  validoAte?:        Date | null
+}
+
+/**
+ * Gera N cupons únicos em uma única operação (lote).
+ * Útil para campanhas: "gerar 50 códigos NATAL com 15% off para distribuir".
+ *
+ * Cada cupom é independente, com seu próprio código único e um uso por cliente.
+ * Códigos seguem o padrão: PREFIXO-XXXXXX (6 chars alfanuméricos aleatórios).
+ *
+ * Retorna a lista dos códigos gerados para o admin copiar/distribuir.
+ */
+export async function gerarCuponsLote(dados: GerarLoteInput): Promise<string[]> {
+  const { prefixoNormalizado } = validarParametrosLote(dados.prefixo, dados.quantidade)
+  const codigos = gerarCodigosUnicos(prefixoNormalizado, dados.quantidade)
+
+  const linhas = codigos.map((codigo) => ({
+    codigo,
+    descricao:         dados.descricao ?? null,
+    tipo:              dados.tipo,
+    valor:             dados.valor,
+    valorMinimoPedido: dados.valorMinimoPedido ?? null,
+    maxDesconto:       dados.maxDesconto ?? null,
+    maxUsos:           1,                 // cada código do lote vale 1 uso só
+    maxUsosPorCliente: dados.maxUsosPorCliente ?? 1,
+    aplicaA:           'todos' as const,
+    aplicaAId:         null,
+    ativo:             1 as const,
+    validoDesde:       null,
+    validoAte:         dados.validoAte ?? null,
+  }))
+
+  // Insere todos de uma vez (melhor que 50 INSERTs separados)
+  await db.insert(cupons).values(linhas)
+
+  return codigos
+}
+

@@ -129,3 +129,21 @@ export async function adicionarImagemProduto(
 export async function removerImagemProduto(imagemId: number) {
   await db.delete(imagensProduto).where(eq(imagensProduto.id, imagemId))
 }
+
+/**
+ * Define qual imagem é a principal (exibida nos cards do catálogo).
+ * Garante que só uma imagem é principal por produto.
+ */
+export async function definirImagemPrincipal(produtoId: number, imagemId: number) {
+  // Zera todas as imagens do produto
+  await db
+    .update(imagensProduto)
+    .set({ principal: 0 })
+    .where(eq(imagensProduto.produtoId, produtoId))
+
+  // Marca a escolhida como principal
+  await db
+    .update(imagensProduto)
+    .set({ principal: 1 })
+    .where(eq(imagensProduto.id, imagemId))
+}
