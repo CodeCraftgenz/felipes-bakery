@@ -9,7 +9,7 @@
 
 import { useState, useMemo }     from 'react'
 import { useRouter }             from 'next/navigation'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver }           from '@hookform/resolvers/zod'
 import { z }                     from 'zod'
 import { toast }                 from 'sonner'
@@ -17,6 +17,7 @@ import {
   Loader2, Plus, Trash2, Power, Pencil, X, Gift,
 } from 'lucide-react'
 import { Botao, Entrada, Rotulo, Cracha } from '@frontend/compartilhado/ui'
+import { CampoImagemUpload }     from '@frontend/admin/compartilhado/CampoImagemUpload'
 import type { ComboCompleto }    from '@backend/modulos/combos/queries'
 
 // ── Tipo mínimo de produto para o seletor ────────────────────
@@ -404,10 +405,18 @@ function ModalCombo({
             </div>
           </div>
 
-          <div>
-            <Rotulo htmlFor="urlImagem">URL da Imagem</Rotulo>
-            <Entrada id="urlImagem" {...register('urlImagem')} placeholder="https://..." />
-          </div>
+          <Controller
+            control={control}
+            name="urlImagem"
+            render={({ field }) => (
+              <CampoImagemUpload
+                id="urlImagem"
+                label="Imagem do Combo"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+              />
+            )}
+          />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>

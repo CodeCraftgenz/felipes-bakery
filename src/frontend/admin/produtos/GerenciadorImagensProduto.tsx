@@ -18,7 +18,8 @@ import { useState }    from 'react'
 import { useRouter }   from 'next/navigation'
 import { toast }       from 'sonner'
 import { Loader2, Plus, Star, Trash2, Image as ImageIcon } from 'lucide-react'
-import { Botao, Entrada, Rotulo } from '@frontend/compartilhado/ui'
+import { Botao }       from '@frontend/compartilhado/ui'
+import { CampoImagemUpload } from '@frontend/admin/compartilhado/CampoImagemUpload'
 import type { ImagemProduto } from '@backend/modulos/produtos/queries'
 
 interface Props {
@@ -92,26 +93,20 @@ export function GerenciadorImagensProduto({ produtoId, imagensIniciais }: Props)
         Imagens do Produto
       </h2>
 
-      {/* Adicionar nova */}
-      <div className="space-y-2">
-        <Rotulo htmlFor="url-imagem">Adicionar imagem por URL</Rotulo>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Entrada
-            id="url-imagem"
-            value={urlNova}
-            onChange={(e) => setUrlNova(e.target.value)}
-            placeholder="https://images.pexels.com/photos/..."
-            disabled={carregando}
-            className="flex-1"
-          />
-          <Botao type="button" onClick={adicionar} disabled={carregando}>
+      {/* Adicionar nova imagem (URL ou upload) */}
+      <div className="space-y-3">
+        <CampoImagemUpload
+          id="url-imagem"
+          label="Adicionar imagem (URL ou enviar do dispositivo)"
+          value={urlNova}
+          onChange={setUrlNova}
+        />
+        <div className="flex justify-end">
+          <Botao type="button" onClick={adicionar} disabled={carregando || !urlNova.trim()}>
             {carregando ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Plus className="mr-1 h-4 w-4" />}
-            Adicionar
+            Adicionar à galeria
           </Botao>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Cole o link direto da imagem. Pexels, Unsplash e Cloudflare R2 já são aceitos.
-        </p>
       </div>
 
       {/* Galeria */}
