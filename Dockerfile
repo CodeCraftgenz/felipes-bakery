@@ -41,8 +41,11 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Criar diretório de logs com permissão correta
-RUN mkdir -p /app/logs && chown nextjs:nodejs /app/logs
+# Criar diretórios de runtime com permissão correta
+# - /app/logs:    logs da aplicação
+# - /app/uploads: imagens enviadas pelo admin (volume Docker persistente)
+RUN mkdir -p /app/logs /app/uploads \
+ && chown nextjs:nodejs /app/logs /app/uploads
 
 USER nextjs
 
