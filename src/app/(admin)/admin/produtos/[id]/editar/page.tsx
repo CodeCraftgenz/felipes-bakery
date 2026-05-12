@@ -82,6 +82,9 @@ export default async function EditarProdutoPage({ params }: EditarProdutoPagePro
         quantidade={estoqueProduto.quantidade}
         alertaMinimo={estoqueProduto.alertaMinimo}
       />
+
+      {/* Espaço pra última seção não ficar atrás da barra fixa de ações */}
+      <div aria-hidden className="h-24" />
     </div>
   )
 }

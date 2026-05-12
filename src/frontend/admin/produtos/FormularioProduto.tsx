@@ -243,20 +243,22 @@ export function FormularioProduto({
         </div>
       </section>
 
-      {/* Barra de ações sticky no rodapé — fica visível enquanto o usuário
-          rola pra mexer nas seções de imagem/estoque (que vêm depois) */}
-      <div className="sticky bottom-0 -mx-1 flex flex-col-reverse items-stretch gap-2 border-t border-stone-200 bg-cream-100/95 px-1 py-3 backdrop-blur sm:flex-row sm:justify-end">
-        <Botao
-          type="button"
-          variante="contorno"
-          onClick={() => router.push('/admin/produtos')}
-        >
-          Cancelar
-        </Botao>
-        <Botao type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {modoEdicao ? 'Salvar dados do produto' : 'Criar produto'}
-        </Botao>
+      {/* Barra fixa no rodapé do viewport — fica sempre visível, mesmo
+          rolando pelas seções de imagem/estoque que ficam abaixo do form */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
+        <div className="mx-auto flex max-w-3xl flex-col-reverse items-stretch gap-2 px-4 py-3 sm:flex-row sm:justify-end">
+          <Botao
+            type="button"
+            variante="contorno"
+            onClick={() => router.push('/admin/produtos')}
+          >
+            Cancelar
+          </Botao>
+          <Botao type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {modoEdicao ? 'Salvar dados do produto' : 'Criar produto'}
+          </Botao>
+        </div>
       </div>
     </form>
   )

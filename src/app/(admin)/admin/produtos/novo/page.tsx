@@ -51,6 +51,9 @@ export default async function NovoProdutoPage({ searchParams }: Props) {
         categorias={categorias}
         dadosIniciais={categoriaIdParam ? { categoriaId: categoriaIdParam } : undefined}
       />
+
+      {/* Espaço pra última seção não ficar atrás da barra fixa de ações */}
+      <div aria-hidden className="h-24" />
     </div>
   )
 }
