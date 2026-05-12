@@ -326,24 +326,29 @@ function ModalCombo({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/50"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
       onClick={aoFechar}
     >
-      <div className="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4">
-        <div
-          className="w-full max-w-2xl rounded-t-2xl bg-white shadow-xl sm:my-8 sm:rounded-lg"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-3 sm:px-6 sm:py-4 sm:rounded-t-lg">
-            <h2 className="font-serif text-lg font-semibold text-brand-950">
-              {modoEdicao ? 'Editar Combo' : 'Novo Combo'}
-            </h2>
-            <button onClick={aoFechar} aria-label="Fechar" className="rounded p-1 hover:bg-stone-100">
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+      <div
+        className="flex max-h-full w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:max-h-[90vh] sm:rounded-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header — fixo no topo */}
+        <div className="flex shrink-0 items-center justify-between border-b bg-white px-4 py-3 sm:px-6 sm:py-4">
+          <h2 className="font-serif text-lg font-semibold text-brand-950">
+            {modoEdicao ? 'Editar Combo' : 'Novo Combo'}
+          </h2>
+          <button onClick={aoFechar} aria-label="Fechar" className="rounded p-1 hover:bg-stone-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4 sm:p-6">
+        {/* Form: body com scroll + footer fixo */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Rotulo htmlFor="nome">Nome *</Rotulo>
@@ -494,8 +499,9 @@ function ModalCombo({
               </p>
             )}
           </div>
-
-          <div className="sticky bottom-0 -mx-4 -mb-4 flex justify-end gap-2 border-t bg-white px-4 py-3 sm:-mx-6 sm:-mb-6 sm:px-6 sm:py-4">
+          </div>
+          {/* Footer — fixo no rodapé do modal (fora do scroll) */}
+          <div className="flex shrink-0 justify-end gap-2 border-t bg-white px-4 py-3 sm:px-6 sm:py-4">
             <Botao type="button" variante="contorno" onClick={aoFechar}>
               Cancelar
             </Botao>
@@ -504,8 +510,7 @@ function ModalCombo({
               {modoEdicao ? 'Salvar' : 'Criar Combo'}
             </Botao>
           </div>
-          </form>
-        </div>
+        </form>
       </div>
     </div>
   )
