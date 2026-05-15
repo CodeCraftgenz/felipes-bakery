@@ -3,842 +3,636 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Felipe's Bakery — Apresentação do Projeto</title>
+  <title>Felipe's Bakery — Apresentação</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --brand-50:  #fdf8f0;
-      --brand-100: #f9eed8;
-      --brand-200: #f2d9a8;
-      --brand-500: #c8883a;
-      --brand-600: #b5722c;
-      --brand-700: #9a5e23;
-      --cream:     #FAF6EF;
-      --terra:     #c0533a;
-      --olive:     #6b7c4d;
-      --stone-900: #1c1917;
-      --stone-700: #44403c;
-      --stone-500: #78716c;
-      --stone-300: #d6d3d1;
-      --stone-100: #f5f5f4;
+      --brand:    #b5722c;
+      --brand-d:  #9a5e23;
+      --brand-l:  #f2d9a8;
+      --cream:    #FAF6EF;
+      --dark:     #1c1917;
+      --dark2:    #292524;
+      --stone:    #44403c;
+      --muted:    #78716c;
+      --border:   #e7e5e4;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--dark); }
+    h1, h2, h3 { font-family: 'Playfair Display', serif; }
 
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--stone-900);
-      color: var(--stone-900);
-      overflow-x: hidden;
+    /* ── Deck ── */
+    #deck {
+      width: 100%; height: 100vh;
+      position: relative; overflow: hidden;
     }
 
     /* ── Slides ── */
-    .slides {
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
-      height: 100vh;
-      scrollbar-width: none;
-    }
-    .slides::-webkit-scrollbar { display: none; }
-
     .slide {
-      scroll-snap-align: start;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      opacity: 0; transform: translateX(60px);
+      transition: opacity .55s ease, transform .55s ease;
+      pointer-events: none;
+      overflow-y: auto;
+    }
+    .slide.active {
+      opacity: 1; transform: translateX(0);
+      pointer-events: all;
+    }
+    .slide.exit {
+      opacity: 0; transform: translateX(-60px);
     }
 
-    /* ── Tipografia ── */
-    h1, h2, h3 { font-family: 'Playfair Display', serif; }
-    h1 { font-size: clamp(2.5rem, 6vw, 5rem); line-height: 1.1; }
-    h2 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.2; }
-    h3 { font-size: clamp(1.1rem, 2vw, 1.5rem); }
-
-    /* ── Navegação lateral ── */
-    .nav-dots {
-      position: fixed;
-      right: 1.5rem;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: .6rem;
-      z-index: 100;
+    /* ── Setas de navegação ── */
+    .nav-arrow {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      z-index: 200;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff; width: 44px; height: 44px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1.2rem;
+      transition: background .2s;
+      user-select: none;
     }
-    .nav-dots a {
-      display: block;
-      width: .6rem;
-      height: .6rem;
-      border-radius: 50%;
-      background: rgba(255,255,255,.35);
+    .nav-arrow:hover { background: var(--brand); border-color: var(--brand); }
+    .nav-arrow.left  { left: 1rem; }
+    .nav-arrow.right { right: 1rem; }
+    .nav-arrow.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── Dots ── */
+    .dots {
+      position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
+      display: flex; gap: .5rem; z-index: 200;
+    }
+    .dot {
+      width: .5rem; height: .5rem; border-radius: 50%;
+      background: rgba(255,255,255,.3); cursor: pointer;
       transition: all .25s;
-      text-decoration: none;
     }
-    .nav-dots a.active,
-    .nav-dots a:hover { background: var(--brand-500); transform: scale(1.4); }
+    .dot.active { background: var(--brand); transform: scale(1.4); }
 
-    /* ── Slide 1: Hero ── */
-    #s1 {
-      background: linear-gradient(135deg, #1c1917 0%, #292524 60%, #1c1917 100%);
+    /* ── Contador ── */
+    .counter {
+      position: fixed; top: 1rem; right: 1.5rem;
+      font-size: .75rem; color: rgba(255,255,255,.4);
+      z-index: 200; letter-spacing: .06em;
     }
-    #s1 .bg-img {
+
+    /* ── Conteúdo geral ── */
+    .container { max-width: 1060px; margin: 0 auto; padding: 3rem 2rem; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .7rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; padding: .35rem .9rem;
+      border-radius: 9999px; margin-bottom: 1rem;
+    }
+    .ey-gold  { background: rgba(242,217,168,.15); color: var(--brand-l); }
+    .ey-light { background: rgba(255,255,255,.1);  color: rgba(255,255,255,.85); }
+    .ey-dark  { background: var(--cream); color: var(--brand-d); }
+
+    /* ── Slide 1 — Hero ── */
+    #s1 { background: var(--dark); }
+    #s1 .bg {
       position: absolute; inset: 0;
       background: url('https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
-      opacity: .18;
+      opacity: .15;
     }
-    #s1 .content {
-      position: relative;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 4rem 2rem;
-      text-align: center;
-      color: #fff;
+    #s1 .inner {
+      position: relative; text-align: center;
+      max-width: 800px; margin: 0 auto; padding: 3rem 2rem;
     }
-    .badge-hero {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      background: var(--brand-600);
-      color: #fff;
-      font-size: .75rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: .4rem 1rem;
-      border-radius: 9999px;
-      margin-bottom: 1.5rem;
-    }
-    #s1 h1 { color: #fff; margin-bottom: 1rem; }
-    #s1 .sub {
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      color: rgba(255,255,255,.7);
-      max-width: 600px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.6;
-    }
-    .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-bottom: 2.5rem; }
-    .tag {
-      background: rgba(255,255,255,.1);
-      border: 1px solid rgba(255,255,255,.2);
-      color: rgba(255,255,255,.85);
-      font-size: .75rem;
-      padding: .3rem .8rem;
+    #s1 h1 { color: #fff; font-size: clamp(3rem,7vw,6rem); line-height: 1.05; margin-bottom: .75rem; }
+    #s1 h1 em { color: var(--brand-l); font-style: italic; }
+    #s1 .sub { color: rgba(255,255,255,.65); font-size: clamp(1rem,2vw,1.3rem); line-height: 1.65; max-width: 560px; margin: 0 auto 2.5rem; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-bottom: 2rem; }
+    .pill {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.8); font-size: .8rem; padding: .35rem .9rem;
       border-radius: 9999px;
     }
-    .scroll-hint {
-      color: rgba(255,255,255,.4);
-      font-size: .8rem;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      animation: bounce 2s infinite;
+
+    /* ── Slide 2 — O antes ── */
+    #s2 { background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+    .before-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .before-list li {
+      display: flex; align-items: flex-start; gap: .75rem;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+      border-radius: .75rem; padding: 1rem 1.25rem;
     }
-    @keyframes bounce {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(6px); }
+    .before-list .icon { font-size: 1.4rem; flex-shrink: 0; }
+    .before-list h4 { font-size: .95rem; font-weight: 600; color: #fff; margin-bottom: .2rem; }
+    .before-list p  { font-size: .82rem; color: rgba(255,255,255,.55); line-height: 1.5; }
+    .before-img {
+      border-radius: 1.5rem; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .before-img img { width: 100%; height: 380px; object-fit: cover; display: block; }
+
+    /* ── Slide 3 — A solução ── */
+    #s3 { background: var(--cream); }
+    #s3 h2 { color: var(--dark); font-size: clamp(1.8rem,4vw,3rem); }
+    #s3 .sub { color: var(--muted); max-width: 560px; line-height: 1.65; margin: .5rem 0 2rem; font-size: .95rem; }
+    .flow-row { display: flex; gap: 0; align-items: stretch; }
+    .flow-step {
+      flex: 1; text-align: center; padding: 1.75rem 1rem;
+      border-right: 1px solid var(--border);
+    }
+    .flow-step:last-child { border-right: none; }
+    .flow-step .num {
+      width: 2.5rem; height: 2.5rem; border-radius: 50%;
+      background: var(--brand); color: #fff;
+      font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto .75rem;
+    }
+    .flow-step h4 { font-size: .9rem; font-weight: 600; color: var(--dark); margin-bottom: .3rem; }
+    .flow-step p  { font-size: .78rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Slide 4 — Site do cliente ── */
+    #s4 { background: linear-gradient(160deg, var(--dark2) 0%, #1a1614 100%); }
+    .screens-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-top: 1.75rem; }
+    .sc-card { border-radius: 1rem; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,.4); }
+    .sc-card img { width: 100%; height: 180px; object-fit: cover; display: block; }
+    .sc-label { background: rgba(0,0,0,.65); color: #fff; font-size: .78rem; font-weight: 500; padding: .5rem .85rem; backdrop-filter: blur(4px); }
+
+    /* ── Slide 5 — Admin ── */
+    #s5 { background: var(--cream); }
+    #s5 h2 { color: var(--dark); font-size: clamp(1.8rem,4vw,3rem); }
+    #s5 .sub { color: var(--muted); max-width: 560px; line-height: 1.65; margin: .5rem 0 2rem; font-size: .95rem; }
+    .admin-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+    .admin-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 1rem; padding: 1.5rem 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    }
+    .admin-card .ico { font-size: 1.75rem; margin-bottom: .6rem; }
+    .admin-card h4 { font-size: .9rem; font-weight: 600; color: var(--dark); margin-bottom: .3rem; }
+    .admin-card p  { font-size: .78rem; color: var(--muted); line-height: 1.45; }
+
+    /* ── Slide 6 — Combos ── */
+    #s6 { background: linear-gradient(135deg, #3d2a0e 0%, #5a3d16 100%); }
+    .combo-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+    .combo-img { border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+    .combo-img img { width: 100%; height: 400px; object-fit: cover; display: block; }
+    .combo-points { list-style: none; display: flex; flex-direction: column; gap: .85rem; margin-top: 1.5rem; }
+    .combo-points li {
+      display: flex; align-items: center; gap: .75rem;
+      color: rgba(255,255,255,.85); font-size: .95rem;
+    }
+    .combo-points li::before {
+      content: '✓';
+      background: var(--brand); color: #fff;
+      width: 1.4rem; height: 1.4rem; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700; flex-shrink: 0;
     }
 
-    /* ── Slide genérico com fundo claro ── */
-    .slide-light {
-      background: var(--cream);
+    /* ── Slide 7 — Valor ── */
+    #s7 { background: linear-gradient(135deg, var(--brand-d) 0%, var(--brand) 100%); }
+    .valor-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.25rem; margin-top: 2rem; }
+    .vc {
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      border-radius: 1rem; padding: 1.75rem;
     }
-    .slide-brand {
-      background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-500) 100%);
+    .vc .num  { font-family: 'Playfair Display',serif; font-size: 2.5rem; font-weight: 700; color: #fff; line-height: 1; }
+    .vc .lbl  { font-size: .75rem; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .08em; margin: .3rem 0; }
+    .vc .desc { font-size: .85rem; color: rgba(255,255,255,.8); line-height: 1.5; margin-top: .4rem; }
+    .vc.highlight { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.4); }
+    .savings-box {
+      margin-top: 1.75rem;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      border-radius: 1rem; padding: 1.25rem 1.75rem;
     }
-    .slide-dark {
-      background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
-    }
-    .slide-olive {
-      background: linear-gradient(135deg, #3d4a2a 0%, #4f6035 100%);
-    }
+    .savings-box p { color: rgba(255,255,255,.9); font-size: .9rem; line-height: 1.7; }
+    .savings-box strong { color: #fff; }
 
-    /* ── Layout de conteúdo ── */
-    .container { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+    /* ── Slide 8 — Resultados ── */
+    #s8 { background: var(--dark); }
+    .results-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; margin-top: 2rem; }
+    .res-card {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 1rem; padding: 1.75rem 1.5rem; text-align: center;
+    }
+    .res-card .big { font-family: 'Playfair Display',serif; font-size: 3rem; font-weight: 700; color: var(--brand-l); line-height: 1; }
+    .res-card .tag { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: .3rem; line-height: 1.4; }
+    .res-card .desc { font-size: .82rem; color: rgba(255,255,255,.6); margin-top: .6rem; line-height: 1.5; }
 
-    /* ── Cabeçalho de seção ── */
-    .section-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      font-size: .7rem;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-      padding: .35rem .9rem;
-      border-radius: 9999px;
+    /* ── Slide 9 — Fim ── */
+    #s9 { background: var(--dark); text-align: center; }
+    #s9 .bg {
+      position: absolute; inset: 0;
+      background: url('https://images.pexels.com/photos/1633525/pexels-photo-1633525.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      opacity: .12;
     }
-    .eyebrow-brand { background: var(--brand-100); color: var(--brand-700); }
-    .eyebrow-white { background: rgba(255,255,255,.15); color: rgba(255,255,255,.9); }
-    .eyebrow-dark  { background: rgba(0,0,0,.12); color: var(--stone-700); }
+    #s9 .inner { position: relative; max-width: 680px; margin: 0 auto; padding: 3rem 2rem; }
+    #s9 h2 { color: var(--brand-l); font-size: clamp(2rem,5vw,4rem); margin-bottom: 1rem; }
+    #s9 p  { color: rgba(255,255,255,.7); font-size: 1.05rem; line-height: 1.75; margin-bottom: 2rem; }
+    .badge-final {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: var(--brand); color: #fff;
+      font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      padding: .5rem 1.25rem; border-radius: 9999px; margin-bottom: 1.5rem;
+    }
+    .info-row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
+    .info-pill {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      border-radius: .75rem; padding: .75rem 1.25rem; text-align: center;
+    }
+    .info-pill .ip-label { font-size: .65rem; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .08em; }
+    .info-pill .ip-val   { font-size: .9rem; font-weight: 600; color: #fff; margin-top: .2rem; }
 
-    /* ── Grid de features ── */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.25rem;
-      margin-top: 2rem;
-    }
-    .feature-card {
-      background: #fff;
-      border: 1px solid var(--stone-300);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,.06);
-    }
-    .feature-icon {
-      font-size: 1.75rem;
-      margin-bottom: .75rem;
-    }
-    .feature-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--stone-900);
-      margin-bottom: .4rem;
-    }
-    .feature-card p {
-      font-size: .85rem;
-      color: var(--stone-500);
-      line-height: 1.5;
-    }
-
-    /* ── Grid de screenshots ── */
-    .screens-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.25rem;
-      margin-top: 2rem;
-    }
-    .screen-card {
-      border-radius: 1rem;
-      overflow: hidden;
-      box-shadow: 0 8px 30px rgba(0,0,0,.25);
-    }
-    .screen-card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      display: block;
-    }
-    .screen-card .screen-label {
-      background: rgba(0,0,0,.7);
-      color: #fff;
-      font-size: .8rem;
-      font-weight: 600;
-      padding: .6rem 1rem;
-      backdrop-filter: blur(4px);
-    }
-
-    /* ── Slide de valor de mercado ── */
-    .valor-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1.25rem;
-      margin-top: 2rem;
-    }
-    .valor-card {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 1rem;
-      padding: 1.75rem 1.5rem;
-      text-align: center;
-      color: #fff;
-    }
-    .valor-card .val-num {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.8rem, 3vw, 2.5rem);
-      font-weight: 700;
-      color: #f2d9a8;
-      display: block;
-      margin-bottom: .3rem;
-    }
-    .valor-card .val-label {
-      font-size: .8rem;
-      color: rgba(255,255,255,.6);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-    .valor-card .val-desc {
-      font-size: .85rem;
-      color: rgba(255,255,255,.75);
-      margin-top: .5rem;
-      line-height: 1.4;
-    }
-
-    /* ── Stack técnica ── */
-    .stack-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-    .stack-item {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: .75rem;
-      padding: 1.25rem;
-      color: #fff;
-    }
-    .stack-item .si-name {
-      font-weight: 600;
-      font-size: .95rem;
-      margin-bottom: .2rem;
-    }
-    .stack-item .si-role {
-      font-size: .75rem;
-      color: rgba(255,255,255,.5);
-    }
-
-    /* ── Métricas ── */
-    .metrics-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-      justify-content: center;
-      margin-top: 2.5rem;
-    }
-    .metric {
-      text-align: center;
-      min-width: 140px;
-    }
-    .metric .m-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 3rem;
-      font-weight: 700;
-      color: var(--brand-500);
-      line-height: 1;
-    }
-    .metric .m-label {
-      font-size: .85rem;
-      color: var(--stone-500);
-      margin-top: .3rem;
-    }
-
-    /* ── Linha do tempo ── */
-    .timeline {
-      margin-top: 2rem;
-      display: grid;
-      gap: 1rem;
-    }
-    .tl-item {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-    .tl-dot {
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 50%;
-      background: var(--brand-600);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      flex-shrink: 0;
-      color: #fff;
-    }
-    .tl-body h4 {
-      font-weight: 600;
-      font-size: .95rem;
-      color: var(--stone-900);
-    }
-    .tl-body p {
-      font-size: .82rem;
-      color: var(--stone-500);
-      margin-top: .15rem;
-    }
-
-    /* ── Slide final (CTA) ── */
-    #s-fim {
-      background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
-      text-align: center;
-    }
-    #s-fim .content { color: #fff; max-width: 700px; margin: 0 auto; padding: 4rem 2rem; }
-    #s-fim h2 { color: #f2d9a8; margin-bottom: 1rem; }
-    #s-fim p  { color: rgba(255,255,255,.7); font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem; }
-    .btn-cta {
-      display: inline-block;
-      background: var(--brand-600);
-      color: #fff;
-      font-weight: 600;
-      font-size: 1rem;
-      padding: .9rem 2.5rem;
-      border-radius: 9999px;
-      text-decoration: none;
-      transition: background .2s;
-    }
-    .btn-cta:hover { background: var(--brand-700); }
-
-    /* ── Responsivo ── */
-    @media (max-width: 640px) {
-      .features-grid, .valor-grid, .stack-grid, .screens-grid { grid-template-columns: 1fr; }
-      .nav-dots { display: none; }
-      .metrics-row { gap: 1rem; }
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .two-col, .combo-layout { grid-template-columns: 1fr; }
+      .screens-grid { grid-template-columns: 1fr 1fr; }
+      .admin-grid   { grid-template-columns: 1fr 1fr; }
+      .results-grid { grid-template-columns: 1fr 1fr; }
+      .valor-grid   { grid-template-columns: 1fr; }
+      .flow-row     { flex-direction: column; }
+      .flow-step    { border-right: none; border-bottom: 1px solid var(--border); }
+      .before-img   { display: none; }
+      .nav-arrow    { display: none; }
     }
   </style>
 </head>
 <body>
 
-<!-- Navegação por pontos -->
-<nav class="nav-dots" id="navDots">
-  <a href="#s1"       class="active" title="Capa"></a>
-  <a href="#s2"       title="O Projeto"></a>
-  <a href="#s3"       title="Painel Admin"></a>
-  <a href="#s4"       title="Site Público"></a>
-  <a href="#s5"       title="Destaques"></a>
-  <a href="#s6"       title="Stack Técnica"></a>
-  <a href="#s7"       title="Valor de Mercado"></a>
-  <a href="#s8"       title="Métricas"></a>
-  <a href="#s-fim"    title="Contato"></a>
-</nav>
+<!-- Setas -->
+<div class="nav-arrow left hidden" id="arrowLeft"  onclick="goTo(current-1)">&#8592;</div>
+<div class="nav-arrow right"       id="arrowRight" onclick="goTo(current+1)">&#8594;</div>
 
-<div class="slides" id="slides">
+<!-- Dots -->
+<div class="dots" id="dots"></div>
 
-  <!-- ═══════════════════════ SLIDE 1 — HERO ═══════════════════════ -->
-  <section class="slide" id="s1">
-    <div class="bg-img"></div>
-    <div class="content">
-      <div class="badge-hero">🍞 Padaria Artesanal Digital</div>
-      <h1>Felipe's Bakery</h1>
-      <p class="sub">
-        Plataforma completa de e-commerce para padaria artesanal — do pedido online
-        à entrega, com painel administrativo, combos sazonais e gestão de estoque.
-      </p>
-      <div class="tag-list">
-        <span class="tag">Next.js 14</span>
-        <span class="tag">TypeScript</span>
-        <span class="tag">MySQL</span>
-        <span class="tag">Docker</span>
-        <span class="tag">WhatsApp</span>
-        <span class="tag">Mercado Pago</span>
-        <span class="tag">VPS Produção</span>
+<!-- Contador -->
+<div class="counter" id="counter">1 / 9</div>
+
+<!-- ═══ DECK ═══ -->
+<div id="deck">
+
+  <!-- 1 — HERO -->
+  <div class="slide active" id="s1">
+    <div class="bg"></div>
+    <div class="inner">
+      <div class="eyebrow ey-gold">🍞 Padaria Artesanal</div>
+      <h1>Felipe's<br/><em>Bakery</em></h1>
+      <p class="sub">Uma plataforma completa de vendas online criada exclusivamente para a sua padaria — do pedido à entrega, tudo organizado em um só lugar.</p>
+      <div class="pill-row">
+        <span class="pill">Loja online</span>
+        <span class="pill">Painel de gestão</span>
+        <span class="pill">Pagamento Pix</span>
+        <span class="pill">Combos sazonais</span>
+        <span class="pill">WhatsApp integrado</span>
       </div>
-      <p class="scroll-hint">▼ &nbsp; Role para explorar</p>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════ SLIDE 2 — O PROJETO ═══════════════════════ -->
-  <section class="slide slide-light" id="s2">
+  <!-- 2 — O ANTES -->
+  <div class="slide" id="s2">
     <div class="container">
-      <span class="section-eyebrow eyebrow-brand">🎯 Visão Geral</span>
-      <h2>Um ecossistema completo<br/>para vendas artesanais</h2>
-      <p style="color:var(--stone-500);max-width:600px;margin:.75rem 0 0;line-height:1.7;font-size:1rem;">
-        Felipe's Bakery nasceu para transformar pedidos por WhatsApp em uma
-        operação profissional — com catálogo online, pagamento Pix automático,
-        combos de temporada e relatórios de vendas em tempo real.
-      </p>
-
-      <div class="metrics-row">
-        <div class="metric">
-          <div class="m-num">11+</div>
-          <div class="m-label">Produtos cadastrados</div>
+      <div class="two-col">
+        <div>
+          <div class="eyebrow ey-gold">😅 O Cenário Atual</div>
+          <h2 style="color:#fff;font-size:clamp(1.8rem,4vw,3rem);margin-bottom:.75rem;">Vender pelo WhatsApp funciona, mas tem um limite</h2>
+          <ul class="before-list">
+            <li>
+              <span class="icon">📱</span>
+              <div><h4>Pedidos perdidos na conversa</h4><p>Mensagens se misturam, pedidos somem e o cliente fica sem resposta rápida.</p></div>
+            </li>
+            <li>
+              <span class="icon">✏️</span>
+              <div><h4>Anotação manual de tudo</h4><p>Planilha, caderno ou memória — qualquer erro significa prejuízo ou retrabalho.</p></div>
+            </li>
+            <li>
+              <span class="icon">💸</span>
+              <div><h4>Sem controle do que vende mais</h4><p>Difícil saber quais produtos trazem mais receita ou quando o estoque acaba.</p></div>
+            </li>
+            <li>
+              <span class="icon">⏰</span>
+              <div><h4>Tempo perdido gerenciando pedidos</h4><p>Horas respondendo mensagens que poderiam ser usadas para produzir mais.</p></div>
+            </li>
+          </ul>
         </div>
-        <div class="metric">
-          <div class="m-num">3</div>
-          <div class="m-label">Categorias</div>
-        </div>
-        <div class="metric">
-          <div class="m-num">4</div>
-          <div class="m-label">Combos sazonais</div>
-        </div>
-        <div class="metric">
-          <div class="m-num">77</div>
-          <div class="m-label">Testes automatizados</div>
-        </div>
-        <div class="metric">
-          <div class="m-num">100%</div>
-          <div class="m-label">TypeScript</div>
-        </div>
-      </div>
-
-      <div class="timeline" style="margin-top:2.5rem;max-width:560px;">
-        <div class="tl-item">
-          <div class="tl-dot">🛒</div>
-          <div class="tl-body">
-            <h4>Cliente faz pedido online</h4>
-            <p>Catálogo responsivo, carrinho persistente, pagamento Pix via Mercado Pago.</p>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot">📲</div>
-          <div class="tl-body">
-            <h4>Confirmação automática</h4>
-            <p>Webhook confirma Pix e avança status para "Em Produção" automaticamente.</p>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot">👨‍🍳</div>
-          <div class="tl-body">
-            <h4>Padeiro gerencia no admin</h4>
-            <p>Dashboard com pedidos do dia, estoque crítico e controle de entregas.</p>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot">🚚</div>
-          <div class="tl-body">
-            <h4>Entrega rastreada</h4>
-            <p>Status visível ao cliente: Pronto → Saiu para entrega → Entregue.</p>
-          </div>
+        <div class="before-img">
+          <img src="https://images.pexels.com/photos/3218467/pexels-photo-3218467.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Padeiro trabalhando" loading="lazy" />
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════ SLIDE 3 — PAINEL ADMIN ═══════════════════════ -->
-  <section class="slide slide-dark" id="s3">
+  <!-- 3 — A SOLUÇÃO -->
+  <div class="slide" id="s3">
     <div class="container">
-      <span class="section-eyebrow eyebrow-white">🔧 Painel Admin</span>
-      <h2 style="color:#fff;">Controle total na palma da mão</h2>
-      <p style="color:rgba(255,255,255,.6);max-width:580px;margin:.75rem 0 0;line-height:1.6;font-size:.95rem;">
-        Interface administrativa completa protegida por autenticação. Tudo editável
-        sem mexer em código — do cardápio às promoções sazonais.
-      </p>
-
-      <div class="features-grid" style="margin-top:2rem;">
-        <div class="feature-card">
-          <div class="feature-icon">📦</div>
-          <h3>Gestão de Produtos</h3>
-          <p>Criar, editar, ativar/desativar. Upload de imagens direto do dispositivo (JPG/PNG/WebP até 5 MB). Galeria com marcação de capa.</p>
+      <div class="eyebrow ey-dark">✅ A Solução</div>
+      <h2>Do pedido à entrega,<br/>tudo automático</h2>
+      <p class="sub">O cliente acessa o site, escolhe os pães, paga e pronto. Você só precisa produzir e entregar.</p>
+      <div class="flow-row">
+        <div class="flow-step">
+          <div class="num">1</div>
+          <h4>Cliente acessa o site</h4>
+          <p>Vê o cardápio completo com fotos, preços e descrições no celular ou computador.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">🏷️</div>
-          <h3>Cupons &amp; Descontos</h3>
-          <p>Cupons percentuais ou fixos com validade, mínimo de pedido e limite de uso. Gerar lote de cupons de uma vez. Vitrine pública automática.</p>
+        <div class="flow-step">
+          <div class="num">2</div>
+          <h4>Monta o carrinho</h4>
+          <p>Adiciona produtos, aplica cupons de desconto e confere o total em tempo real.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">🎁</div>
-          <h3>Combos Sazonais</h3>
-          <p>Combos temáticos (Natal, Páscoa, Dia das Mães…) com período de validade, imagem e preço especial. Aparecem em carrossel na home.</p>
+        <div class="flow-step">
+          <div class="num">3</div>
+          <h4>Paga com Pix</h4>
+          <p>QR Code gerado automaticamente. Confirmação imediata — sem esperar comprovante.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3>Relatórios e Analytics</h3>
-          <p>Gráficos de receita diária e mensal, top clientes por valor gasto, alertas de estoque crítico e resumo de vendas por período.</p>
+        <div class="flow-step">
+          <div class="num">4</div>
+          <h4>Pedido no painel</h4>
+          <p>Aparece automaticamente no seu painel. Você avança o status até a entrega.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">🛍️</div>
-          <h3>Gestão de Pedidos</h3>
-          <p>Fila de pedidos com status Pix, produção, entrega. Avanço manual de status. Histórico completo por cliente.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📦</div>
-          <h3>Controle de Estoque</h3>
-          <p>Ajuste positivo e negativo com motivo registrado. Alerta visual de estoque mínimo. Decremento automático após pagamento confirmado.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🖼️</div>
-          <h3>Banners da Home</h3>
-          <p>Banners ativos e inativos com validade programada. Controle de ordem de exibição. Ativação com um clique.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">⚙️</div>
-          <h3>Configurações da Loja</h3>
-          <p>Nome da loja, WhatsApp, e-mail, ciclo de pedidos (dia de corte e entrega), taxa de frete e modo manutenção.</p>
+        <div class="flow-step">
+          <div class="num">5</div>
+          <h4>Cliente acompanha</h4>
+          <p>"Em produção", "Saiu para entrega", "Entregue" — transparência total para quem comprou.</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════ SLIDE 4 — SITE PÚBLICO ═══════════════════════ -->
-  <section class="slide slide-light" id="s4">
+  <!-- 4 — SITE DO CLIENTE -->
+  <div class="slide" id="s4">
     <div class="container">
-      <span class="section-eyebrow eyebrow-brand">🌐 Site Público</span>
-      <h2>Experiência de compra premium</h2>
-      <p style="color:var(--stone-500);max-width:580px;margin:.75rem 0 0;line-height:1.6;font-size:.95rem;">
-        Interface pública totalmente responsiva — mobile-first, rápida e confiável —
-        com design artesanal que reflete a identidade da padaria.
-      </p>
-
-      <div class="screens-grid" style="margin-top:2rem;">
-        <div class="screen-card">
-          <img src="https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Home" />
-          <div class="screen-label">🏠 Home — Banners + Combos + Destaque + Cupons</div>
+      <div class="eyebrow ey-gold">🌐 O que o cliente vê</div>
+      <h2 style="color:#fff;font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:.5rem;">Um site bonito que vende enquanto você dorme</h2>
+      <p style="color:rgba(255,255,255,.6);max-width:560px;font-size:.9rem;line-height:1.6;">Totalmente adaptado para celular. Carrega rápido e é fácil de usar — como deve ser para quem vai comprar.</p>
+      <div class="screens-grid">
+        <div class="sc-card">
+          <img src="https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Home" loading="lazy" />
+          <div class="sc-label">🏠 Página inicial com destaques e promoções</div>
         </div>
-        <div class="screen-card">
-          <img src="https://images.pexels.com/photos/1028637/pexels-photo-1028637.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Catálogo" />
-          <div class="screen-label">🛒 Catálogo — Busca, filtro por categoria, cards</div>
+        <div class="sc-card">
+          <img src="https://images.pexels.com/photos/1028637/pexels-photo-1028637.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Catálogo" loading="lazy" />
+          <div class="sc-label">🛒 Catálogo com busca e filtro por tipo</div>
         </div>
-        <div class="screen-card">
-          <img src="https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?auto=compress&cs=tinysrgb&w=800" alt="Produto" />
-          <div class="screen-label">🍞 Produto — Galeria, ingredientes, adicionar ao carrinho</div>
+        <div class="sc-card">
+          <img src="https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?auto=compress&cs=tinysrgb&w=600" alt="Produto" loading="lazy" />
+          <div class="sc-label">🍞 Página do produto com fotos e ingredientes</div>
         </div>
-        <div class="screen-card">
-          <img src="https://images.pexels.com/photos/1387070/pexels-photo-1387070.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Combo" />
-          <div class="screen-label">🎁 Combo — Carrossel horizontal + página de detalhes</div>
+        <div class="sc-card">
+          <img src="https://images.pexels.com/photos/1387070/pexels-photo-1387070.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Combos" loading="lazy" />
+          <div class="sc-label">🎁 Combos especiais em carrossel</div>
         </div>
-        <div class="screen-card">
-          <img src="https://images.pexels.com/photos/3218467/pexels-photo-3218467.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Checkout" />
-          <div class="screen-label">💳 Checkout — Pix Mercado Pago + QR Code</div>
+        <div class="sc-card">
+          <img src="https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Checkout" loading="lazy" />
+          <div class="sc-label">💳 Checkout com Pix e QR Code automático</div>
         </div>
-        <div class="screen-card">
-          <img src="https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=800" alt="WhatsApp" />
-          <div class="screen-label">📱 Botão WhatsApp flutuante em todas as páginas</div>
+        <div class="sc-card">
+          <img src="https://images.pexels.com/photos/3892469/pexels-photo-3892469.jpeg?auto=compress&cs=tinysrgb&w=600" alt="WhatsApp" loading="lazy" />
+          <div class="sc-label">📱 Botão do WhatsApp sempre visível</div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════ SLIDE 5 — DIFERENCIAIS ═══════════════════════ -->
-  <section class="slide slide-olive" id="s5">
+  <!-- 5 — PAINEL ADMIN -->
+  <div class="slide" id="s5">
     <div class="container">
-      <span class="section-eyebrow eyebrow-white">✨ Diferenciais</span>
-      <h2 style="color:#fff;">O que torna este projeto especial</h2>
-
-      <div class="features-grid" style="margin-top:2rem;">
-        <div class="feature-card" style="border-left:4px solid var(--brand-500);">
-          <div class="feature-icon">🎠</div>
-          <h3>Carrossel de Combos Sazonais</h3>
-          <p>Cards com scroll horizontal suave, setas de navegação e snap CSS. 1 card mobile, 2 tablet, 3 desktop — zero JavaScript de terceiros.</p>
+      <div class="eyebrow ey-dark">🔧 Painel de Gestão</div>
+      <h2>Você no controle de tudo,<br/>sem precisar de ajuda</h2>
+      <p class="sub">Interface simples e intuitiva. Qualquer mudança no cardápio, promoção ou pedido — você mesmo faz em minutos.</p>
+      <div class="admin-grid">
+        <div class="admin-card">
+          <div class="ico">📦</div>
+          <h4>Produtos e Cardápio</h4>
+          <p>Adicione, edite ou tire produtos de linha. Foto, preço, descrição — tudo pelo celular.</p>
         </div>
-        <div class="feature-card" style="border-left:4px solid var(--terra);">
-          <div class="feature-icon">📸</div>
-          <h3>Upload de Imagens do Dispositivo</h3>
-          <p>Admin faz upload da foto do pão direto do celular. Arquivo salvo em volume Docker persistente, servido em rota dedicada.</p>
+        <div class="admin-card">
+          <div class="ico">🛍️</div>
+          <h4>Pedidos do Dia</h4>
+          <p>Veja todos os pedidos em tempo real. Avance o status de "Em produção" até "Entregue".</p>
         </div>
-        <div class="feature-card" style="border-left:4px solid var(--olive);">
-          <div class="feature-icon">🏷️</div>
-          <h3>Vitrine Pública de Cupons</h3>
-          <p>Cupons ativos aparecem automaticamente na home para os clientes copiarem com um clique — sem nenhuma ação extra do admin.</p>
+        <div class="admin-card">
+          <div class="ico">🏷️</div>
+          <h4>Cupons e Descontos</h4>
+          <p>Crie promoções com percentual ou valor fixo. Controle de validade e uso por cliente.</p>
         </div>
-        <div class="feature-card" style="border-left:4px solid var(--brand-500);">
-          <div class="feature-icon">🔒</div>
-          <h3>Autenticação Dupla</h3>
-          <p>Admin usa e-mail/senha com sessão de 8h. Clientes acessam via e-mail/senha ou Google OAuth com sessão de 7 dias.</p>
+        <div class="admin-card">
+          <div class="ico">🎁</div>
+          <h4>Combos Sazonais</h4>
+          <p>Monte cestas e combos para datas especiais. Aparecem automaticamente na home do site.</p>
         </div>
-        <div class="feature-card" style="border-left:4px solid var(--terra);">
-          <div class="feature-icon">📊</div>
-          <h3>Analytics em Tempo Real</h3>
-          <p>Gráficos Recharts com receita diária e mensal. Top clientes por valor. Estoque crítico com alerta visual. Tudo sem ferramentas externas pagas.</p>
+        <div class="admin-card">
+          <div class="ico">📊</div>
+          <h4>Relatórios de Vendas</h4>
+          <p>Veja quais produtos vendem mais, quanto entrou no mês e quais clientes compram mais.</p>
         </div>
-        <div class="feature-card" style="border-left:4px solid var(--olive);">
-          <div class="feature-icon">🐳</div>
-          <h3>Deploy Docker Completo</h3>
-          <p>Imagem multi-stage com Next.js standalone. Docker Compose com MySQL, volumes persistentes e dumb-init como PID 1.</p>
+        <div class="admin-card">
+          <div class="ico">📦</div>
+          <h4>Estoque</h4>
+          <p>Controle de quanto tem disponível. Aviso automático quando o produto está acabando.</p>
+        </div>
+        <div class="admin-card">
+          <div class="ico">🖼️</div>
+          <h4>Banners da Home</h4>
+          <p>Troque a imagem de destaque da página inicial quando quiser. Sem precisar de designer.</p>
+        </div>
+        <div class="admin-card">
+          <div class="ico">⚙️</div>
+          <h4>Configurações</h4>
+          <p>Defina o dia de corte dos pedidos, dia de entrega, frete e informações da loja.</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════ SLIDE 6 — STACK TÉCNICA ═══════════════════════ -->
-  <section class="slide slide-dark" id="s6">
+  <!-- 6 — COMBOS SAZONAIS -->
+  <div class="slide" id="s6">
     <div class="container">
-      <span class="section-eyebrow eyebrow-white">⚙️ Stack Técnica</span>
-      <h2 style="color:#fff;">Tecnologia de ponta,<br/>escolhas sólidas</h2>
-
-      <div class="stack-grid" style="margin-top:2rem;">
-        <div class="stack-item">
-          <div class="si-name">Next.js 14</div>
-          <div class="si-role">Framework full-stack — App Router, SSR, API Routes</div>
+      <div class="combo-layout">
+        <div class="combo-img">
+          <img src="https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Combo artesanal" loading="lazy" />
         </div>
-        <div class="stack-item">
-          <div class="si-name">TypeScript</div>
-          <div class="si-role">100% tipado — frontend, backend e schemas</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">Drizzle ORM</div>
-          <div class="si-role">Type-safe com MySQL — migrations, queries, seeds</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">MySQL 8</div>
-          <div class="si-role">Banco relacional — utf8mb4, volume Docker persistente</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">NextAuth v5</div>
-          <div class="si-role">Auth dual — admin (8h) + cliente (7d) + Google OAuth</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">Tailwind CSS v3</div>
-          <div class="si-role">Design system com tokens brand, cream, terracotta</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">Zustand + Immer</div>
-          <div class="si-role">Estado do carrinho com persistência localStorage</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">Mercado Pago</div>
-          <div class="si-role">Pix com QR Code + webhook de confirmação</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">Recharts</div>
-          <div class="si-role">Gráficos de receita diária e mensal no admin</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">Vitest</div>
-          <div class="si-role">77 testes unitários (carrinho, cupons, validações)</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">Playwright</div>
-          <div class="si-role">Testes E2E — fluxo completo admin → público</div>
-        </div>
-        <div class="stack-item">
-          <div class="si-name">Docker + VPS</div>
-          <div class="si-role">Deploy Hostinger — multi-stage, dumb-init, cron limpeza</div>
+        <div>
+          <div class="eyebrow ey-gold">🎁 Destaque Especial</div>
+          <h2 style="color:#fff;font-size:clamp(1.8rem,4vw,3rem);margin-bottom:.5rem;">Combos sazonais que <em style="color:var(--brand-l);font-style:italic;">vendem sozinhos</em></h2>
+          <p style="color:rgba(255,255,255,.65);font-size:.9rem;line-height:1.65;margin-bottom:.5rem;">Para datas especiais como Natal, Páscoa, Dia das Mães — você monta o combo no painel e ele aparece em destaque na home para os clientes.</p>
+          <ul class="combo-points">
+            <li>Combo com foto, descrição e preço especial</li>
+            <li>Aparece em carrossel bonito na página inicial</li>
+            <li>Período de validade programado (some sozinho)</li>
+            <li>Preço original riscado — mostra quanto o cliente economiza</li>
+            <li>Botão direto para o WhatsApp para fechar o pedido</li>
+          </ul>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════ SLIDE 7 — VALOR DE MERCADO ═══════════════════════ -->
-  <section class="slide slide-brand" id="s7">
+  <!-- 7 — VALOR -->
+  <div class="slide" id="s7">
     <div class="container">
-      <span class="section-eyebrow eyebrow-white">💰 Valor de Mercado</span>
-      <h2 style="color:#fff;">Quanto valeria este projeto?</h2>
-      <p style="color:rgba(255,255,255,.75);max-width:600px;margin:.75rem 0 0;line-height:1.6;font-size:.95rem;">
-        Comparativo com plataformas SaaS equivalentes e custo de desenvolvimento
-        de mercado para uma solução personalizada desta complexidade.
-      </p>
-
-      <div class="valor-grid" style="margin-top:2rem;">
-        <div class="valor-card">
-          <span class="val-num">R$ 25.000</span>
-          <div class="val-label">Desenvolvimento personalizado</div>
-          <div class="val-desc">Custo médio de mercado para plataforma e-commerce artesanal com todas as features desenvolvidas.</div>
+      <div class="eyebrow ey-light">💰 O que isso vale</div>
+      <h2 style="color:#fff;font-size:clamp(1.8rem,4vw,3rem);margin-bottom:.5rem;">Investimento que se paga rápido</h2>
+      <p style="color:rgba(255,255,255,.7);max-width:560px;font-size:.9rem;line-height:1.6;margin-bottom:.5rem;">Compare o custo de ter uma plataforma própria versus depender de terceiros.</p>
+      <div class="valor-grid">
+        <div class="vc highlight">
+          <div class="num">R$ 25.000</div>
+          <div class="lbl">Valor de desenvolvimento</div>
+          <div class="desc">Custo médio de mercado para um sistema com todas as funcionalidades entregues aqui.</div>
         </div>
-        <div class="valor-card">
-          <span class="val-num">R$ 1.200/mês</span>
-          <div class="val-label">SaaS equivalente (Shopify + apps)</div>
-          <div class="val-desc">Shopify Basic + Klaviyo + app de combos + app de analytics + WhatsApp integration.</div>
+        <div class="vc">
+          <div class="num">R$ 1.200/mês</div>
+          <div class="lbl">Custo em plataformas como Shopify</div>
+          <div class="desc">Shopify + apps de cupons + analytics + integração de combos. E ainda em inglês.</div>
         </div>
-        <div class="valor-card">
-          <span class="val-num">R$ 800/mês</span>
-          <div class="val-label">Manutenção mensal estimada</div>
-          <div class="val-desc">Suporte, updates, novos combos sazonais, ajustes de estoque e relatórios mensais.</div>
+        <div class="vc">
+          <div class="num">15–18%</div>
+          <div class="lbl">Taxa do iFood por pedido</div>
+          <div class="desc">A cada R$ 10.000 em pedidos, R$ 1.500–1.800 vão para a plataforma. Por mês. Todo mês.</div>
         </div>
-        <div class="valor-card">
-          <span class="val-num">3x</span>
-          <div class="val-label">ROI estimado — 1º ano</div>
-          <div class="val-desc">Plataforma própria elimina comissões de marketplace (10-20%) e tem custo de servidor ~R$ 120/mês.</div>
+        <div class="vc">
+          <div class="num">R$ 120/mês</div>
+          <div class="lbl">Custo real do servidor</div>
+          <div class="desc">Tudo rodando na VPS com banco de dados e backups. Sem comissão por pedido.</div>
         </div>
       </div>
-
-      <div style="margin-top:2.5rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:1rem;padding:1.5rem 2rem;">
-        <p style="color:rgba(255,255,255,.9);font-size:.95rem;line-height:1.7;">
-          <strong style="color:#f2d9a8;">Comparativo direto:</strong> iFood Shop cobra 12–18% por pedido + R$ 99/mês.
-          Uma padaria com R$ 10.000/mês em pedidos paga ~R$ 1.500–R$ 1.900/mês em taxas.
-          Com plataforma própria, o custo total de infraestrutura é <strong style="color:#f2d9a8;">R$ 120–200/mês</strong>.
-        </p>
+      <div class="savings-box">
+        <p>👉 Com R$ 10.000/mês em pedidos, o iFood levaria <strong>R$ 18.000 por ano</strong> em taxas. Com plataforma própria, o custo anual de servidor é <strong>R$ 1.440</strong>. A diferença financia o desenvolvimento em menos de 2 anos.</p>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════ SLIDE 8 — MÉTRICAS DO PROJETO ═══════════════════════ -->
-  <section class="slide slide-light" id="s8">
+  <!-- 8 — RESULTADOS -->
+  <div class="slide" id="s8">
     <div class="container" style="text-align:center;">
-      <span class="section-eyebrow eyebrow-brand" style="margin:0 auto 1rem;">📈 Números do Projeto</span>
-      <h2>Construído com rigor técnico</h2>
-      <p style="color:var(--stone-500);max-width:500px;margin:.75rem auto 0;line-height:1.6;font-size:.95rem;">
-        Métricas que refletem a qualidade e profundidade da implementação.
-      </p>
-
-      <div class="metrics-row" style="margin-top:3rem;">
-        <div class="metric">
-          <div class="m-num">77</div>
-          <div class="m-label">Testes unitários<br/>passando</div>
+      <div class="eyebrow ey-gold" style="margin:0 auto 1rem;">🚀 O que muda no seu dia a dia</div>
+      <h2 style="color:#fff;font-size:clamp(1.8rem,4vw,3rem);margin-bottom:.5rem;">Menos trabalho manual,<br/>mais tempo para produzir</h2>
+      <div class="results-grid" style="text-align:left;margin-top:2rem;">
+        <div class="res-card" style="text-align:center;">
+          <div class="big">0</div>
+          <div class="tag">Pedidos perdidos em conversa de WhatsApp</div>
+          <div class="desc">Cada pedido fica registrado com itens, endereço e status no painel.</div>
         </div>
-        <div class="metric">
-          <div class="m-num">12</div>
-          <div class="m-label">Grupos de testes<br/>E2E cobrindo admin→público</div>
+        <div class="res-card" style="text-align:center;">
+          <div class="big">24h</div>
+          <div class="tag">Loja aberta sem você precisar estar online</div>
+          <div class="desc">O cliente compra no horário dele. Você vê os pedidos quando quiser.</div>
         </div>
-        <div class="metric">
-          <div class="m-num">50+</div>
-          <div class="m-label">Rotas de API<br/>implementadas</div>
+        <div class="res-card" style="text-align:center;">
+          <div class="big">Pix</div>
+          <div class="tag">Pagamento confirmado na hora</div>
+          <div class="desc">Sem cobrar comprovante, sem aguardar transferência, sem risco de calote.</div>
         </div>
-        <div class="metric">
-          <div class="m-num">100%</div>
-          <div class="m-label">TypeScript<br/>sem any</div>
+        <div class="res-card" style="text-align:center;">
+          <div class="big">1 lugar</div>
+          <div class="tag">Para gerenciar produtos, pedidos e clientes</div>
+          <div class="desc">Cardápio, estoque, relatórios e promoções — tudo em um único painel.</div>
         </div>
-        <div class="metric">
-          <div class="m-num">3</div>
-          <div class="m-label">Ambientes<br/>dev / staging / prod</div>
+        <div class="res-card" style="text-align:center;">
+          <div class="big">+vendas</div>
+          <div class="tag">Combos e cupons aumentam o ticket médio</div>
+          <div class="desc">Cliente que vê uma promoção de combo compra mais do que planejava.</div>
         </div>
-        <div class="metric">
-          <div class="m-num">0</div>
-          <div class="m-label">Hard-deletes<br/>(soft-delete em tudo)</div>
-        </div>
-      </div>
-
-      <div style="margin-top:3rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;text-align:left;">
-        <div style="background:var(--brand-50);border:1px solid var(--brand-200);border-radius:.75rem;padding:1.25rem;">
-          <div style="font-size:1.5rem;margin-bottom:.5rem;">🔐</div>
-          <div style="font-weight:600;font-size:.9rem;color:var(--stone-900);margin-bottom:.3rem;">Segurança</div>
-          <div style="font-size:.8rem;color:var(--stone-500);line-height:1.5;">Bcrypt 12 rounds, NextAuth sessions, usuário não-root no Docker, soft-deletes, CSRF via NextAuth v5.</div>
-        </div>
-        <div style="background:var(--brand-50);border:1px solid var(--brand-200);border-radius:.75rem;padding:1.25rem;">
-          <div style="font-size:1.5rem;margin-bottom:.5rem;">📱</div>
-          <div style="font-weight:600;font-size:.9rem;color:var(--stone-900);margin-bottom:.3rem;">Mobile-First</div>
-          <div style="font-size:.8rem;color:var(--stone-500);line-height:1.5;">Todos os modais com scroll interno. Admin responsivo. Carrossel adaptativo. Testado em Pixel 5 e iPhone 12.</div>
-        </div>
-        <div style="background:var(--brand-50);border:1px solid var(--brand-200);border-radius:.75rem;padding:1.25rem;">
-          <div style="font-size:1.5rem;margin-bottom:.5rem;">⚡</div>
-          <div style="font-weight:600;font-size:.9rem;color:var(--stone-900);margin-bottom:.3rem;">Performance</div>
-          <div style="font-size:.8rem;color:var(--stone-500);line-height:1.5;">Next.js standalone output. Server Components por padrão. Client Components apenas onde necessário. Imagens lazy-load.</div>
-        </div>
-        <div style="background:var(--brand-50);border:1px solid var(--brand-200);border-radius:.75rem;padding:1.25rem;">
-          <div style="font-size:1.5rem;margin-bottom:.5rem;">🔄</div>
-          <div style="font-weight:600;font-size:.9rem;color:var(--stone-900);margin-bottom:.3rem;">Manutenibilidade</div>
-          <div style="font-size:.8rem;color:var(--stone-500);line-height:1.5;">Módulos backend isolados (queries / mutations). Aliases de path. Zod para validação. Drizzle para migrations.</div>
+        <div class="res-card" style="text-align:center;">
+          <div class="big">Seu</div>
+          <div class="tag">Seus dados, sua plataforma, sua marca</div>
+          <div class="desc">Sem depender de marketplace. O relacionamento com o cliente é seu.</div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════ SLIDE 9 — CTA FINAL ═══════════════════════ -->
-  <section class="slide" id="s-fim">
-    <div class="bg-img" style="background-image:url('https://images.pexels.com/photos/1633525/pexels-photo-1633525.jpeg?auto=compress&cs=tinysrgb&w=1920');opacity:.15;position:absolute;inset:0;background-size:cover;background-position:center;"></div>
-    <div class="content" style="position:relative;color:#fff;max-width:700px;margin:0 auto;padding:4rem 2rem;text-align:center;">
-      <div class="badge-hero" style="margin:0 auto 1.5rem;">🚀 Pronto para produção</div>
-      <h2 style="color:#f2d9a8;margin-bottom:1rem;">Felipe's Bakery está no ar</h2>
-      <p style="color:rgba(255,255,255,.75);font-size:1.05rem;line-height:1.7;margin-bottom:2rem;">
-        Plataforma completa em produção na VPS Hostinger — catálogo, pedidos,
-        pagamento Pix, painel admin, combos sazonais e analytics. Tudo funcionando.
-      </p>
-
-      <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-bottom:2.5rem;">
-        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:.75rem;padding:1rem 1.5rem;text-align:center;">
-          <div style="font-size:.75rem;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem;">Stack</div>
-          <div style="font-weight:600;color:#fff;font-size:.95rem;">Next.js · MySQL · Docker</div>
+  <!-- 9 — FIM -->
+  <div class="slide" id="s9">
+    <div class="bg"></div>
+    <div class="inner">
+      <div class="badge-final">🍞 Pronto para vender</div>
+      <h2>Felipe's Bakery<br/>está no ar</h2>
+      <p>Cardápio online, pedidos com Pix automático, painel de gestão completo e combos sazonais. Tudo funcionando, tudo no seu controle.</p>
+      <div class="info-row">
+        <div class="info-pill">
+          <div class="ip-label">Pagamento</div>
+          <div class="ip-val">Pix automático</div>
         </div>
-        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:.75rem;padding:1rem 1.5rem;text-align:center;">
-          <div style="font-size:.75rem;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem;">Pagamento</div>
-          <div style="font-weight:600;color:#fff;font-size:.95rem;">Pix via Mercado Pago</div>
+        <div class="info-pill">
+          <div class="ip-label">Pedidos</div>
+          <div class="ip-val">Organizados no painel</div>
         </div>
-        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:.75rem;padding:1rem 1.5rem;text-align:center;">
-          <div style="font-size:.75rem;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem;">Servidor</div>
-          <div style="font-weight:600;color:#fff;font-size:.95rem;">VPS Hostinger · 24/7</div>
+        <div class="info-pill">
+          <div class="ip-label">Promoções</div>
+          <div class="ip-val">Combos e cupons</div>
+        </div>
+        <div class="info-pill">
+          <div class="ip-label">Servidor</div>
+          <div class="ip-val">Online 24h / dia</div>
         </div>
       </div>
-
-      <p style="color:rgba(255,255,255,.4);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;">
-        Desenvolvido com Next.js 14 · TypeScript · Drizzle ORM · Docker
-      </p>
     </div>
-  </section>
+  </div>
 
-</div><!-- /slides -->
+</div><!-- /deck -->
 
 <script>
-  // Atualiza dot ativo conforme scroll
-  const slides  = document.getElementById('slides')
-  const dots    = document.querySelectorAll('.nav-dots a')
-  const targets = Array.from(document.querySelectorAll('.slide'))
+  const TOTAL   = 9
+  let current   = 0
 
-  function updateDots() {
-    const scrollY  = slides.scrollTop
-    const winH     = slides.clientHeight
-    let activeIdx  = 0
-    targets.forEach((el, i) => {
-      if (el.offsetTop <= scrollY + winH * 0.5) activeIdx = i
-    })
-    dots.forEach((d, i) => d.classList.toggle('active', i === activeIdx))
+  const slides    = Array.from(document.querySelectorAll('.slide'))
+  const dotsEl    = document.getElementById('dots')
+  const arrowL    = document.getElementById('arrowLeft')
+  const arrowR    = document.getElementById('arrowRight')
+  const counterEl = document.getElementById('counter')
+
+  // Cria dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div')
+    d.className = 'dot' + (i === 0 ? ' active' : '')
+    d.addEventListener('click', () => goTo(i))
+    dotsEl.appendChild(d)
+  })
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= TOTAL) return
+
+    const prev = slides[current]
+    prev.classList.remove('active')
+    prev.classList.add('exit')
+    setTimeout(() => prev.classList.remove('exit'), 550)
+
+    current = idx
+    slides[current].classList.add('active')
+    // Reset scroll dentro do slide
+    slides[current].scrollTop = 0
+
+    // Atualiza dots
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current))
+
+    // Atualiza setas
+    arrowL.classList.toggle('hidden', current === 0)
+    arrowR.classList.toggle('hidden', current === TOTAL - 1)
+
+    // Contador
+    counterEl.textContent = `${current + 1} / ${TOTAL}`
   }
 
-  slides.addEventListener('scroll', updateDots, { passive: true })
-  updateDots()
+  // Teclado
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(current + 1)
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(current - 1)
+  })
+
+  // Swipe mobile
+  let touchX = null
+  document.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX })
+  document.addEventListener('touchend',   (e) => {
+    if (touchX === null) return
+    const dx = touchX - e.changedTouches[0].clientX
+    if (Math.abs(dx) > 50) dx > 0 ? goTo(current + 1) : goTo(current - 1)
+    touchX = null
+  })
+
+  // Inicializa seta
+  arrowL.classList.add('hidden')
 </script>
 </body>
 </html>
