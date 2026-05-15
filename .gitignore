@@ -67,6 +67,10 @@ uploads/
 # ─── Sentry ───────────────────────────────────────────────
 .sentryclirc
 
+# ─── Ferramentas de desenvolvimento (Claude Code / OMC) ───
+.claude/
+.omc/
+
 # ─── Misc ─────────────────────────────────────────────────
 *.pem
 .vercel
