@@ -1,11 +1,11 @@
-/**
+﻿/**
  * API Admin — Configurações da Loja
  * PATCH /api/admin/configuracoes → atualiza o singleton de configurações
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z }                         from 'zod'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import { atualizarConfiguracoes }    from '@backend/modulos/configuracoes/mutations'
 
 const schemaConfig = z.object({
@@ -21,8 +21,8 @@ const schemaConfig = z.object({
 })
 
 export async function PATCH(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) {
+  const session = await requireAdmin()
+  if (!session) {
     return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
   }
 

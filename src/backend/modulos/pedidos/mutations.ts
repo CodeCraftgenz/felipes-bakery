@@ -11,8 +11,8 @@
  */
 
 import 'server-only'
-import { eq, sql }    from 'drizzle-orm'
-import { db }         from '@backend/lib/banco'
+import { eq, sql, inArray } from 'drizzle-orm'
+import { db }               from '@backend/lib/banco'
 import {
   pedidos,
   itensPedido,
@@ -22,6 +22,7 @@ import {
   movimentacoesEstoque,
   cupons,
   usosCupom,
+  produtos,
 } from '@schema'
 import type { StatusPedido }      from '@schema'
 import { gerarNumeroPedido }      from '@compartilhado/utils'
@@ -95,14 +96,19 @@ export async function criarPedido(dados: DadosCriarPedido): Promise<PedidoCriado
     const pedidoId = (pedidoInserido as any).insertId as number
 
     // ── Etapa 2: Insere os itens do pedido ───────────────────
-    // Busca os nomes/slugs dos produtos para snapshot
+    // Busca os nomes reais dos produtos para snapshot imutável
+    const produtoIds  = dados.itens.map((i) => i.produtoId)
+    const nomesProdutos = await tx
+      .select({ id: produtos.id, nome: produtos.nome })
+      .from(produtos)
+      .where(inArray(produtos.id, produtoIds))
+    const mapaNomes = Object.fromEntries(nomesProdutos.map((p) => [p.id, p.nome]))
+
     await tx.insert(itensPedido).values(
       dados.itens.map((item) => ({
         pedidoId,
         produtoId:    item.produtoId,
-        // Snapshot do produto (nomeProduto preenchido pelo gatilho do banco
-        // ou pelo client; caso ausente, usamos um placeholder seguro)
-        nomeProduto:  `Produto #${item.produtoId}`,
+        nomeProduto:  mapaNomes[item.produtoId] ?? `Produto #${item.produtoId}`,
         precoProduto: String(item.preco),
         quantidade:   item.quantidade,
         subtotal:     String(item.preco * item.quantidade),
@@ -167,7 +173,13 @@ export async function atualizarStatusPedido(
   await db.transaction(async (tx) => {
     // Lê o status atual para detectar transições especiais
     const [atual] = await tx
-      .select({ status: pedidos.status, cupomId: pedidos.cupomId, clienteId: pedidos.clienteId, total: pedidos.total })
+      .select({
+        status:        pedidos.status,
+        cupomId:       pedidos.cupomId,
+        clienteId:     pedidos.clienteId,
+        total:         pedidos.total,
+        valorDesconto: pedidos.valorDesconto,
+      })
       .from(pedidos)
       .where(eq(pedidos.id, pedidoId))
       .limit(1)
@@ -200,11 +212,18 @@ export async function atualizarStatusPedido(
       for (const item of itens) {
         if (!item.produtoId) continue
 
-        // Decrementa quantidade de forma atômica (evita race condition)
-        await tx
+        // Decrementa apenas se houver estoque suficiente (evita overselling)
+        const [res] = await tx
           .update(estoque)
-          .set({ quantidade: sql`GREATEST(0, ${estoque.quantidade} - ${item.quantidade})` })
-          .where(eq(estoque.produtoId, item.produtoId))
+          .set({ quantidade: sql`${estoque.quantidade} - ${item.quantidade}` })
+          .where(
+            sql`${estoque.produtoId} = ${item.produtoId} AND ${estoque.quantidade} >= ${item.quantidade}`,
+          )
+        if ((res as any).affectedRows === 0) {
+          console.warn(
+            `[Estoque] Oversell detectado: produto ${item.produtoId} — pedido ${pedidoId}`,
+          )
+        }
 
         // Registra movimentação de saída
         await tx.insert(movimentacoesEstoque).values({
@@ -222,7 +241,7 @@ export async function atualizarStatusPedido(
           cupomId:       atual.cupomId,
           pedidoId,
           clienteId:     atual.clienteId ?? null,
-          valorDesconto: atual.total, // será sobrescrito pelo valor real
+          valorDesconto: atual.valorDesconto ?? '0.00',
         })
         await tx
           .update(cupons)

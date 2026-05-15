@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Admin — Combos
  * GET  /api/admin/combos → lista todos os combos
  * POST /api/admin/combos → cria um novo combo (com itens)
@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z }                         from 'zod'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import { listarCombosAdmin }         from '@backend/modulos/combos/queries'
 import { criarCombo }                from '@backend/modulos/combos/mutations'
 
@@ -32,16 +32,16 @@ const schemaCriacao = z.object({
 })
 
 export async function GET() {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const combos = await listarCombosAdmin()
   return NextResponse.json({ combos })
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const body  = await req.json().catch(() => null)
   const parse = schemaCriacao.safeParse(body)

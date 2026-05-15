@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Admin — Imagem específica de um produto
  * DELETE /api/admin/produtos/[id]/imagens/[imgId] → remove imagem
  * PATCH  /api/admin/produtos/[id]/imagens/[imgId] → marca como principal
@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z }                         from 'zod'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import {
   removerImagemProduto,
   definirImagemPrincipal,
@@ -21,8 +21,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string; imgId: string } },
 ) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const imgId = Number(params.imgId)
   if (!Number.isInteger(imgId) || imgId <= 0) {
@@ -37,8 +37,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string; imgId: string } },
 ) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const produtoId = Number(params.id)
   const imgId     = Number(params.imgId)

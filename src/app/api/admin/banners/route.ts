@@ -1,11 +1,11 @@
-/**
+﻿/**
  * API Admin — Banners
  * GET  /api/admin/banners → lista todos os banners
  * POST /api/admin/banners → cria um novo banner
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import { z }                         from 'zod'
 import { listarBanners }             from '@backend/modulos/banners/queries'
 import { criarBanner }               from '@backend/modulos/banners/mutations'
@@ -21,16 +21,16 @@ const schemaCriacao = z.object({
 })
 
 export async function GET() {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const banners = await listarBanners()
   return NextResponse.json({ banners })
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const body  = await req.json().catch(() => null)
   const parse = schemaCriacao.safeParse(body)

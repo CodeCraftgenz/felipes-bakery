@@ -33,7 +33,13 @@ export async function GET(req: NextRequest) {
 
   try {
     // ── 1. Usuário Admin ─────────────────────────────────
-    const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@Felipe2026!'
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD
+    if (!adminPassword) {
+      return NextResponse.json(
+        { erro: 'SEED_ADMIN_PASSWORD não definida' },
+        { status: 500 },
+      )
+    }
     const senhaHash     = await bcrypt.hash(adminPassword, 12)
 
     await db.insert(usuarios).values({

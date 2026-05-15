@@ -1,11 +1,11 @@
-/**
+﻿/**
  * API Admin — Cupons
  * GET  /api/admin/cupons → lista todos os cupons
  * POST /api/admin/cupons → cria um novo cupom
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import { z }                         from 'zod'
 import { listarCupons }              from '@backend/modulos/cupons/queries'
 import { criarCupom }                from '@backend/modulos/cupons/mutations'
@@ -29,8 +29,8 @@ const schemaCriacao = z.object({
 
 // ── GET — Lista todos os cupons ────────────────────────────────
 export async function GET() {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const cupons = await listarCupons()
   return NextResponse.json({ cupons })
@@ -38,8 +38,8 @@ export async function GET() {
 
 // ── POST — Cria novo cupom ─────────────────────────────────────
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const body  = await req.json().catch(() => null)
   const parse = schemaCriacao.safeParse(body)

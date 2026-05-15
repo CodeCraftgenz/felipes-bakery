@@ -19,7 +19,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { inArray }                   from 'drizzle-orm'
 import { auth }                      from '@backend/lib/auth'
+import { db }                        from '@backend/lib/banco'
+import { produtos }                  from '@schema'
 import { criarPedido, registrarPagamentoPix } from '@backend/modulos/pedidos/mutations'
 import { validarCupom }              from '@backend/modulos/cupons/queries'
 import { criarPagamentoPix }         from '@backend/lib/pagamento'
@@ -41,6 +44,40 @@ export async function POST(req: NextRequest) {
 
     const dados = parsed.data
 
+    // ── Valida preços contra o banco (nunca confiar no cliente) ──
+    const produtoIds = dados.itens.map((i) => i.produtoId)
+    const precosDB   = await db
+      .select({ id: produtos.id, preco: produtos.preco, status: produtos.status })
+      .from(produtos)
+      .where(inArray(produtos.id, produtoIds))
+
+    const mapaPrecos: Record<number, number> = {}
+    for (const p of precosDB) {
+      if (p.status !== 'published') {
+        return NextResponse.json(
+          { mensagem: `Produto #${p.id} não está disponível para compra.` },
+          { status: 400 },
+        )
+      }
+      mapaPrecos[p.id] = Number(p.preco)
+    }
+
+    // Verifica se todos os produtos existem
+    for (const item of dados.itens) {
+      if (mapaPrecos[item.produtoId] === undefined) {
+        return NextResponse.json(
+          { mensagem: `Produto #${item.produtoId} não encontrado.` },
+          { status: 400 },
+        )
+      }
+    }
+
+    // Substitui preços enviados pelo cliente com os preços reais do banco
+    const itensComPrecoReal = dados.itens.map((item) => ({
+      ...item,
+      preco: mapaPrecos[item.produtoId],
+    }))
+
     // ── Obtém ID do cliente autenticado (se logado) ──────────
     const sessao    = await auth()
     const clienteId = sessao?.user?.role === 'customer'
@@ -52,7 +89,7 @@ export async function POST(req: NextRequest) {
     let cupomId:     number | null = null
 
     if (dados.codigoCupom) {
-      const subtotal = dados.itens.reduce((s, i) => s + i.preco * i.quantidade, 0)
+      const subtotal = itensComPrecoReal.reduce((s, i) => s + i.preco * i.quantidade, 0)
       const resultadoCupom = await validarCupom(
         dados.codigoCupom,
         subtotal,
@@ -71,12 +108,13 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Calcula o total ───────────────────────────────────────
-    const subtotalItens = dados.itens.reduce((s, i) => s + i.preco * i.quantidade, 0)
+    const subtotalItens = itensComPrecoReal.reduce((s, i) => s + i.preco * i.quantidade, 0)
     const valorTotal    = Math.max(0, subtotalItens - valorDesconto)
 
     // ── Cria o pedido no banco ────────────────────────────────
     const pedido = await criarPedido({
       ...dados,
+      itens: itensComPrecoReal,
       clienteId,
       valorDesconto,
       valorTotal,

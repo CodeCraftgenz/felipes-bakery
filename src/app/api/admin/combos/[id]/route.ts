@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Admin — Combos por ID
  * PATCH  /api/admin/combos/[id] → atualiza combo (com possível troca de itens)
  *                                  body { alternarAtivo: true } → toggle ativo
@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z }                         from 'zod'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import {
   atualizarCombo,
   alternarAtivoCombo,
@@ -40,8 +40,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const id = Number(params.id)
   if (!Number.isInteger(id) || id <= 0) {
@@ -81,8 +81,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const id = Number(params.id)
   if (!Number.isInteger(id) || id <= 0) {

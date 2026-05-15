@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Admin — Cupons em lote
  * POST /api/admin/cupons/lote → gera N cupons únicos para campanha
  *
@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z }                         from 'zod'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import { gerarCuponsLote }           from '@backend/modulos/cupons/mutations'
 
 // Limites: 1 a 500 por chamada para evitar uso abusivo
@@ -25,8 +25,8 @@ const schemaLote = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) {
+  const session = await requireAdmin()
+  if (!session) {
     return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
   }
 

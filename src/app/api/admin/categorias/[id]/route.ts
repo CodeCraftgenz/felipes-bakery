@@ -1,11 +1,11 @@
-/**
+﻿/**
  * API Admin — Edição e Desativação de Categoria
  * PATCH /api/admin/categorias/[id]
  * DELETE /api/admin/categorias/[id]
  */
 
 import { NextRequest, NextResponse }          from 'next/server'
-import { auth }                               from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import { z }                                  from 'zod'
 import { editarCategoria, desativarCategoria } from '@backend/modulos/categorias/mutations'
 
@@ -19,8 +19,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const id = Number(params.id)
   if (isNaN(id)) return NextResponse.json({ erro: 'ID inválido' }, { status: 400 })
@@ -37,8 +37,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const id = Number(params.id)
   if (isNaN(id)) return NextResponse.json({ erro: 'ID inválido' }, { status: 400 })

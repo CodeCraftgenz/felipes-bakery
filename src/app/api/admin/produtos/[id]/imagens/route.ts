@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Admin — Imagens de um produto
  * GET  /api/admin/produtos/[id]/imagens → lista imagens do produto
  * POST /api/admin/produtos/[id]/imagens → adiciona imagem por URL
@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z }                         from 'zod'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 import { listarImagensProduto }      from '@backend/modulos/produtos/queries'
 import { adicionarImagemProduto }    from '@backend/modulos/produtos/mutations'
 
@@ -19,8 +19,8 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const id = Number(params.id)
   if (!Number.isInteger(id) || id <= 0) {
@@ -35,8 +35,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
 
   const produtoId = Number(params.id)
   if (!Number.isInteger(produtoId) || produtoId <= 0) {

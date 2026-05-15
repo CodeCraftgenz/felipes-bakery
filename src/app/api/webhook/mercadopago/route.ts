@@ -58,9 +58,9 @@ export async function POST(req: NextRequest) {
     // Verifica a assinatura (segurança obrigatória em produção)
     const assinaturaValida = verificarAssinatura(req, body)
     if (!assinaturaValida) {
-      console.warn('[Webhook MP] Assinatura inválida!')
-      // Retorna 200 mesmo assim para não causar retentativas do MP
-      return NextResponse.json({ recebido: true })
+      console.warn('[Webhook MP] Assinatura inválida — requisição rejeitada')
+      // 400 não causa retentativas do MP (só 5xx causa)
+      return NextResponse.json({ erro: 'Assinatura inválida' }, { status: 400 })
     }
 
     // Processa apenas eventos de pagamento
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Evita reprocessar se o pedido já está em um status final/idempotente
-    const statusFinais: StatusPedido[] = ['paid', 'cancelled', 'delivered']
+    const statusFinais: StatusPedido[] = ['paid', 'cancelled', 'delivered', 'payment_failed']
     if (statusFinais.includes(pedidoBanco.status as StatusPedido)) {
       return NextResponse.json({ recebido: true })
     }

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Admin — Upload de Imagens
  * POST /api/admin/upload (multipart/form-data, campo "file")
  *
@@ -17,7 +17,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir }          from 'node:fs/promises'
 import path                          from 'node:path'
 import crypto                        from 'node:crypto'
-import { auth }                      from '@backend/lib/auth'
+import { requireAdmin } from '@backend/lib/auth/require-admin'
 
 export const runtime = 'nodejs'
 
@@ -26,8 +26,8 @@ const EXTENSOES_PERMITIDAS = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
 const PASTA_UPLOADS = process.env.UPLOAD_DIR || '/app/uploads'
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) {
+  const session = await requireAdmin()
+  if (!session) {
     return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
   }
 
