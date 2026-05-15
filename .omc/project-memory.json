@@ -1,0 +1,508 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1778873170070,
+  "projectRoot": "d:\\Felipe_Bakery",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "14.2.20",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "@playwright/test",
+        "version": "1.49.1",
+        "category": "testing"
+      },
+      {
+        "name": "vitest",
+        "version": "2.1.8",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": "npm test",
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev --turbopack",
+      "build": "next build && cp -r .next/static .next/standalone/.next/static",
+      "start": "node .next/standalone/server.js",
+      "lint": "eslint .",
+      "typecheck": "tsc --noEmit",
+      "db:generate": "drizzle-kit generate",
+      "db:migrate": "drizzle-kit migrate",
+      "db:push": "drizzle-kit push",
+      "db:studio": "drizzle-kit studio",
+      "db:seed": "tsx drizzle/seed.ts",
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "test:e2e": "playwright test",
+      "test:e2e:ui": "playwright test --ui"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "scripts",
+      "src",
+      "tests"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "banco": {
+      "path": "banco",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1778873169877,
+      "keyFiles": []
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 2,
+      "lastAccessed": 1778873169879,
+      "keyFiles": [
+        "blueprint.md",
+        "deployment.md"
+      ]
+    },
+    "drizzle": {
+      "path": "drizzle",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778873169919,
+      "keyFiles": [
+        "seed.ts"
+      ]
+    },
+    "infra": {
+      "path": "infra",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1778873169921,
+      "keyFiles": []
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 1,
+      "lastAccessed": 1778873169922,
+      "keyFiles": [
+        "corrigir-mojibake.js"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 1,
+      "lastAccessed": 1778873169922,
+      "keyFiles": [
+        "middleware.ts"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 1,
+      "lastAccessed": 1778873169923,
+      "keyFiles": [
+        "setup.ts"
+      ]
+    },
+    "banco\\migrations": {
+      "path": "banco\\migrations",
+      "purpose": "Database migrations",
+      "fileCount": 4,
+      "lastAccessed": 1778873169925,
+      "keyFiles": [
+        "0000_quick_quentin_quire.sql",
+        "0001_combos.sql",
+        "migration_clean.sql"
+      ]
+    },
+    "banco\\seeds": {
+      "path": "banco\\seeds",
+      "purpose": "Database seeds",
+      "fileCount": 1,
+      "lastAccessed": 1778873169926,
+      "keyFiles": [
+        "seed.ts"
+      ]
+    },
+    "src\\app": {
+      "path": "src\\app",
+      "purpose": "Application code",
+      "fileCount": 4,
+      "lastAccessed": 1778873169929,
+      "keyFiles": [
+        "globals.css",
+        "layout.tsx",
+        "robots.ts"
+      ]
+    },
+    "src\\lib": {
+      "path": "src\\lib",
+      "purpose": "Library code",
+      "fileCount": 1,
+      "lastAccessed": 1778873169930,
+      "keyFiles": [
+        "utils.ts"
+      ]
+    },
+    "src\\types": {
+      "path": "src\\types",
+      "purpose": "Type definitions",
+      "fileCount": 1,
+      "lastAccessed": 1778873169932,
+      "keyFiles": [
+        "next-auth.d.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "",
+      "accessCount": 23,
+      "lastAccessed": 1778877882157,
+      "type": "directory"
+    },
+    {
+      "path": "src\\backend\\modulos\\pedidos\\mutations.ts",
+      "accessCount": 10,
+      "lastAccessed": 1778878660036,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\pedidos\\route.ts",
+      "accessCount": 9,
+      "lastAccessed": 1778878710618,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 7,
+      "lastAccessed": 1778877980482,
+      "type": "directory"
+    },
+    {
+      "path": "src\\app\\api\\webhook\\mercadopago\\route.ts",
+      "accessCount": 6,
+      "lastAccessed": 1778878425227,
+      "type": "file"
+    },
+    {
+      "path": "tests\\e2e\\admin-publico.spec.ts",
+      "accessCount": 3,
+      "lastAccessed": 1778873726517,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\seed\\route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1778876797952,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\setup\\route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1778877875832,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\cupons\\validar\\route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1778878716452,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin",
+      "accessCount": 2,
+      "lastAccessed": 1778876408939,
+      "type": "directory"
+    },
+    {
+      "path": "src\\app\\api\\admin\\combos\\route.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778876416306,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\cupons\\[id]\\route.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778876416922,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(public)",
+      "accessCount": 2,
+      "lastAccessed": 1778876424973,
+      "type": "directory"
+    },
+    {
+      "path": "src\\compartilhado\\validacoes\\pedido.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778876531636,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\upload\\route.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778877864518,
+      "type": "file"
+    },
+    {
+      "path": "src\\backend\\modulos\\cupons\\queries.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778877875060,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\pedidos\\[id]\\status\\route.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778877898318,
+      "type": "file"
+    },
+    {
+      "path": "tests\\e2e\\admin.spec.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873441320,
+      "type": "file"
+    },
+    {
+      "path": "tests\\e2e\\home.spec.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873441438,
+      "type": "file"
+    },
+    {
+      "path": "tests\\e2e\\catalogo.spec.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873445837,
+      "type": "file"
+    },
+    {
+      "path": "playwright.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873453573,
+      "type": "file"
+    },
+    {
+      "path": "banco\\seeds\\seed.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873473100,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\cupons\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873473195,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\combos\\[id]\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873593328,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\produtos\\[id]\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873593966,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\produtos\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873603148,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\categorias\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873603253,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\banners\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873603532,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\banners\\[id]\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873619004,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\configuracoes\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873709487,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\categorias\\[id]\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873710366,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\produtos\\[id]\\status\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778873716835,
+      "type": "file"
+    },
+    {
+      "path": "apresentacao\\index.html",
+      "accessCount": 1,
+      "lastAccessed": 1778874231332,
+      "type": "file"
+    },
+    {
+      "path": "src\\frontend\\compartilhado\\stores\\carrinho.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778876391944,
+      "type": "file"
+    },
+    {
+      "path": "src\\backend\\modulos\\cupons\\mutations.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778876393291,
+      "type": "file"
+    },
+    {
+      "path": "src\\backend\\modulos\\estoque\\mutations.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778876393691,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\api\\admin\\estoque\\ajustar\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778876402392,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\uploads\\[filename]\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778876402744,
+      "type": "file"
+    },
+    {
+      "path": "src\\app",
+      "accessCount": 1,
+      "lastAccessed": 1778876409914,
+      "type": "directory"
+    },
+    {
+      "path": "banco\\schema",
+      "accessCount": 1,
+      "lastAccessed": 1778876410880,
+      "type": "directory"
+    },
+    {
+      "path": "src\\app\\(public)\\catalogo\\page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778876417439,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(public)\\checkout\\page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778876417853,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(public)\\layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778876418442,
+      "type": "file"
+    },
+    {
+      "path": "tests\\unit\\carrinho.test.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778876418866,
+      "type": "file"
+    },
+    {
+      "path": "src\\frontend\\admin",
+      "accessCount": 1,
+      "lastAccessed": 1778876427025,
+      "type": "directory"
+    },
+    {
+      "path": "src\\app\\(public)\\carrinho",
+      "accessCount": 1,
+      "lastAccessed": 1778876432657,
+      "type": "directory"
+    },
+    {
+      "path": "src\\app\\(public)\\checkout",
+      "accessCount": 1,
+      "lastAccessed": 1778876433728,
+      "type": "directory"
+    },
+    {
+      "path": "src\\app\\(public)\\carrinho\\page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778876434356,
+      "type": "file"
+    },
+    {
+      "path": "tests\\unit\\validacoes.test.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778876435146,
+      "type": "file"
+    },
+    {
+      "path": "tests\\unit\\estoque.test.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778876435234,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

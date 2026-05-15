@@ -21,6 +21,7 @@ import {
 export type PedidoDetalhado = {
   id:            number
   numeroPedido:  string
+  clienteId:     number | null
   status:        string
   total:         string
   criadoEm:      Date
@@ -110,6 +111,7 @@ export async function buscarPedidoPorNumero(
   return {
     id:           pedido.id,
     numeroPedido: pedido.numeroPedido,
+    clienteId:    pedido.clienteId,
     status:       pedido.status,
     total:        pedido.total,
     criadoEm:     pedido.criadoEm,

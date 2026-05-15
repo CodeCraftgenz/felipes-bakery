@@ -3,14 +3,19 @@
  * GET /api/pedidos/[numero]/status
  *
  * Retorna o status atual de um pedido.
- * Usado pelo polling do frontend na página de confirmação
- * enquanto aguarda o pagamento Pix ser confirmado.
+ * Usado pelo polling do frontend na página de confirmação.
  *
- * Response 200: { status, numeroPedido }
+ * Dados Pix (QR code) são retornados somente para:
+ *   - Cliente dono do pedido (autenticado)
+ *   - Admin autenticado
+ *   - Pedido ainda em pending_payment com QR não expirado (guest checkout)
+ *
+ * Response 200: { status, numeroPedido, pixQrCode?, pixCopiaCola?, pixExpiracao? }
  * Response 404: { mensagem }
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { auth }                      from '@backend/lib/auth'
 import { buscarPedidoPorNumero }     from '@backend/modulos/pedidos/queries'
 
 export async function GET(
@@ -28,13 +33,32 @@ export async function GET(
       )
     }
 
+    // Determina quem está consultando
+    const sessao    = await auth()
+    const ehAdmin   = (sessao?.user as any)?.adminUser === true
+    const clienteId = sessao?.user?.role === 'customer'
+      ? parseInt(sessao.user.id ?? '0') || null
+      : null
+
+    const ehDono = clienteId !== null &&
+                   pedido.clienteId !== null &&
+                   pedido.clienteId === clienteId
+
+    // Dados Pix só visíveis para: dono, admin, ou guest com QR ainda válido
+    // (janela de 30 min após o checkout — suficiente para exibir o QR ao comprador)
+    const pixExpiracao = pedido.pagamento?.pixExpiracao
+    const qrAindaValido = pixExpiracao
+      ? new Date(pixExpiracao) > new Date()
+      : false
+    const mostrarPix = ehDono || ehAdmin ||
+                       (pedido.status === 'pending_payment' && qrAindaValido)
+
     return NextResponse.json({
       numeroPedido: pedido.numeroPedido,
       status:       pedido.status,
-      // Retorna dados do Pix se ainda pendente (para reexibir QR code)
-      pixQrCode:       pedido.pagamento?.pixQrCode    ?? null,
-      pixCopiaCola:    pedido.pagamento?.pixCopiaCola ?? null,
-      pixExpiracao:    pedido.pagamento?.pixExpiracao ?? null,
+      pixQrCode:    mostrarPix ? (pedido.pagamento?.pixQrCode    ?? null) : null,
+      pixCopiaCola: mostrarPix ? (pedido.pagamento?.pixCopiaCola ?? null) : null,
+      pixExpiracao: mostrarPix ? (pedido.pagamento?.pixExpiracao ?? null) : null,
     })
   } catch (erro) {
     console.error('[API /pedidos/status] Erro:', erro)

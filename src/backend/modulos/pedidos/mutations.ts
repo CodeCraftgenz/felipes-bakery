@@ -68,6 +68,26 @@ export async function criarPedido(dados: DadosCriarPedido): Promise<PedidoCriado
   const subtotalItens = dados.itens.reduce((s, i) => s + i.preco * i.quantidade, 0)
 
   return await db.transaction(async (tx) => {
+    // ── Etapa 0: Trava o cupom (evita race condition de uso simultâneo) ──
+    // SELECT FOR UPDATE serializa requests concorrentes ao mesmo cupom.
+    // Sem isso, dois pedidos simultâneos passariam pela validação e excederiam maxUsos.
+    if (dados.cupomId) {
+      const [cupomLocked] = await tx
+        .select({ usosAtuais: cupons.usosAtuais, maxUsos: cupons.maxUsos })
+        .from(cupons)
+        .where(eq(cupons.id, dados.cupomId))
+        .for('update')
+        .limit(1)
+
+      if (
+        cupomLocked &&
+        cupomLocked.maxUsos !== null &&
+        cupomLocked.usosAtuais >= cupomLocked.maxUsos
+      ) {
+        throw new Error('Cupom esgotado — limite de usos atingido')
+      }
+    }
+
     // ── Etapa 1: Insere o pedido principal ───────────────────
     const [pedidoInserido] = await tx.insert(pedidos).values({
       numeroPedido,

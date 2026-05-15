@@ -179,6 +179,10 @@ export const authConfig: NextAuthConfig = {
         token.id        = user.id
         token.role      = (user as any).role ?? 'customer'
         token.adminUser = (user as any).adminUser ?? false
+        // Admin: sessão expira em 8 horas (cliente usa o maxAge padrão de 7 dias)
+        if ((user as any).adminUser) {
+          token.exp = Math.floor(Date.now() / 1000) + 8 * 60 * 60
+        }
       }
 
       // Google OAuth: cria ou recupera o cliente no banco

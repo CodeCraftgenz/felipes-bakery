@@ -116,9 +116,9 @@ export async function criarPagamentoPix(
 
   const resultado = await payment.create({
     body:                  requisicao,
-    // Chave de idempotência: evita duplicatas em caso de retry
+    // Chave de idempotência: estável por pedido — garante que retries não geram cobrança dupla
     requestOptions: {
-      idempotencyKey: `pix-${dados.pedidoId}-${Date.now()}`,
+      idempotencyKey: `pix-${dados.pedidoId}`,
     },
   })
 

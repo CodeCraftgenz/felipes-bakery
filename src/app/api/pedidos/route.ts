@@ -27,9 +27,17 @@ import { criarPedido, registrarPagamentoPix } from '@backend/modulos/pedidos/mut
 import { validarCupom }              from '@backend/modulos/cupons/queries'
 import { criarPagamentoPix }         from '@backend/lib/pagamento'
 import { schemaCriarPedido }         from '@compartilhado/validacoes/pedido'
+import { checarLimitePedidos }       from '@backend/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   try {
+    const { bloqueado } = await checarLimitePedidos(req)
+    if (bloqueado) {
+      return NextResponse.json(
+        { mensagem: 'Muitas tentativas. Aguarde um momento e tente novamente.' },
+        { status: 429 },
+      )
+    }
     // ── Valida o body ────────────────────────────────────────
     const body   = await req.json()
     const parsed = schemaCriarPedido.safeParse(body)
@@ -153,6 +161,11 @@ export async function POST(req: NextRequest) {
       { status: 201 },
     )
   } catch (erro) {
+    const mensagem = erro instanceof Error ? erro.message : ''
+    // Erros de negócio conhecidos retornam 400 (não 500)
+    if (mensagem.startsWith('Cupom esgotado')) {
+      return NextResponse.json({ mensagem: 'Este cupom não está mais disponível.' }, { status: 400 })
+    }
     console.error('[API /pedidos] Erro ao criar pedido:', erro)
     return NextResponse.json(
       { mensagem: 'Não foi possível processar seu pedido. Tente novamente.' },

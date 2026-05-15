@@ -14,9 +14,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth }                      from '@backend/lib/auth'
 import { validarCupom }              from '@backend/modulos/cupons/queries'
 import { schemaValidarCupom }        from '@compartilhado/validacoes/pedido'
+import { checarLimiteCupons }        from '@backend/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   try {
+    const { bloqueado } = await checarLimiteCupons(req)
+    if (bloqueado) {
+      return NextResponse.json(
+        { mensagem: 'Muitas tentativas. Aguarde um momento.' },
+        { status: 429 },
+      )
+    }
     // Lê e valida o body
     const body    = await req.json()
     const parsed  = schemaValidarCupom.safeParse(body)

@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
  * Formato do cabeçalho x-signature: "ts=<timestamp>,v1=<hash>"
  */
 function verificarAssinatura(req: NextRequest, body: string): boolean {
-  const secret    = process.env.MP_WEBHOOK_SECRET
+  const secret    = process.env.MERCADOPAGO_WEBHOOK_SECRET
   const assinatura = req.headers.get('x-signature')
   const requestId  = req.headers.get('x-request-id')
 
