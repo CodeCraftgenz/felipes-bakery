@@ -37,9 +37,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copiar artefatos do build standalone (sem public/ — não existe neste projeto)
+# Copiar artefatos do build standalone
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copiar pasta public/ (arquivos estáticos: apresentacao, uploads iniciais, etc.)
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Criar diretórios de runtime com permissão correta
 # - /app/logs:    logs da aplicação
