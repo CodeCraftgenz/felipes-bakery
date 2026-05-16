@@ -27,8 +27,14 @@ const schemaCupom = z.object({
   valor:             z.string().min(1, 'Valor obrigatório'),
   valorMinimoPedido: z.string().optional(),
   maxDesconto:       z.string().optional(),
-  maxUsos:           z.coerce.number().int().positive().optional(),
-  maxUsosPorCliente: z.coerce.number().int().positive().default(1),
+  maxUsos:           z.preprocess(
+    (v) => (v === '' || v === undefined || v === null ? undefined : v),
+    z.coerce.number().int().positive().optional(),
+  ),
+  maxUsosPorCliente: z.preprocess(
+    (v) => (v === '' || v === undefined || v === null ? 1 : v),
+    z.coerce.number().int().positive().default(1),
+  ),
   validoAte:         z.string().optional(),
 })
 
